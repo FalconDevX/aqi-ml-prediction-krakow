@@ -13,8 +13,8 @@ def get_stations():
     response = requests.get(GIOS_GET_STATIONS_URL, params=params)
     data = response.json()
 
-    with open("stations.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    # with open("stations.json", "w", encoding="utf-8") as f:
+    #     json.dump(data, f, indent=4, ensure_ascii=False)
 
-
+    return data
 get_stations()
