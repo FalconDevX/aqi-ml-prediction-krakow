@@ -4,9 +4,12 @@ import os
 
 URL = "https://api.gios.gov.pl/pjp-api/v1/rest/archivalData/getDataForAllStationsByYearAndVoivodeship"
 
-DATA_FOLDER = "../data"
+DATA_FOLDER = "./data"
 
 years = [2020, 2021, 2022, 2023, 2024, 2025, 2026]
+
+with open(f"{DATA_FOLDER}/stations.json", "r", encoding="utf-8") as f:
+    stations_list = json.load(f)
 
 def get_aqi_param_gois(years, aqi_param):
     
@@ -36,6 +39,8 @@ def save_pages(year, aqi_param):
 
     total_pages = data["totalPages"]
 
+    total_pages = 3
+
     for i in range(total_pages):
         all_pages.append(download_page(i, params))
 
@@ -61,5 +66,15 @@ def download_page(page, params):
     print(f"\033[92mSaving page {page}\033[0m")
 
     return data
+
+def filter_stations(stations):
+    """
+    Filters stations by their code and save only from Krakow stations list
+    """
+    filtered_stations = []
+    for station in stations:
+        if station["Kod stacji"] in stations_list:
+            filtered_stations.append(station)
+    return filtered_stations
 
 save_pages(2020, "PM10")
