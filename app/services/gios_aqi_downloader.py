@@ -111,39 +111,39 @@ def filter_stations(stations, year):
 
     skipped_stations = set()
 
-    curr_station_name = None
+    curr_station_code = None
 
     for station in stations:
         if cut_String(station["Kod stanowiska"]) in station_codes:
-            curr_station_name = station["Nazwa stacji"]
+            curr_station_code = station["Kod stanowiska"]
             break
 
     for station in stations:
-        if cut_String(station["Kod stanowiska"]) in station_codes and station["Nazwa stacji"] == curr_station_name:
+        if cut_String(station["Kod stanowiska"]) in station_codes and station["Kod stanowiska"] == curr_station_code:
             stations_to_save.append(station) #adds a record, not just a station so its a lot of them
-        elif cut_String(station["Kod stanowiska"]) in station_codes and station["Nazwa stacji"] != curr_station_name:
-            save_filtered_stations(stations_to_save, curr_station_name, year)
+        elif cut_String(station["Kod stanowiska"]) in station_codes and station["Kod stanowiska"] != curr_station_code:
+            save_filtered_stations(stations_to_save, curr_station_code, year)
             stations_to_save = [] #resets after saving all records to a dedicated station file
-            curr_station_name = station["Nazwa stacji"] 
+            curr_station_code = station["Kod stanowiska"] 
             stations_to_save.append(station)
         elif cut_String(station["Kod stanowiska"]) not in station_codes:
-            print(f"Station {station['Nazwa stacji']} not found in stations list")
-            skipped_stations.add(station["Nazwa stacji"])
+            print(f"Station {station['Kod stanowiska']} not found in stations list")
+            skipped_stations.add(station["Kod stanowiska"])
 
     #print(f"Skipped stations: {skipped_stations}") #debug purposes
 
-    save_filtered_stations(stations_to_save, curr_station_name, year)
+    save_filtered_stations(stations_to_save, curr_station_code, year)
 
     return stations_to_save
     
 def cut_String(string):
     return string.split("-")[0]
 
-def save_filtered_stations(filtered_stations, station_name, year):
-    if not os.path.exists(f"{DATA_FOLDER}/{station_name}"):
-        os.makedirs(f"{DATA_FOLDER}/{station_name}")
+def save_filtered_stations(filtered_stations, station_code, year):
+    if not os.path.exists(f"{DATA_FOLDER}/{station_code}"):
+        os.makedirs(f"{DATA_FOLDER}/{station_code}")
 
-    with open(f"{DATA_FOLDER}/{station_name}/data_{year}.json", "w", encoding="utf-8") as f:
+    with open(f"{DATA_FOLDER}/{station_code}/data_{year}.json", "w", encoding="utf-8") as f:
         json.dump(filtered_stations, f, indent=4, ensure_ascii=False)
 
 save_filtered_pages(2024, "PM10")
