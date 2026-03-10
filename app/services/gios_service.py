@@ -59,4 +59,3 @@ def save_stations_to_csv(stations):
             )
 
 
-save_stations_to_csv(get_stations())
