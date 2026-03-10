@@ -14,7 +14,7 @@ with open(f"./data/stations.json", "r", encoding="utf-8") as f:
     stations_list = json.load(f)
 
 station_names = {s["Nazwa stacji"] for s in stations_list}
-
+station_codes = {s["Kod stacji"] for s in stations_list}
 def save_filtered_pages(year, aqi_param):
     """
     Saves all api pages for a given year and aqi parameter.
@@ -69,7 +69,7 @@ def save_filtered_pages(year, aqi_param):
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(all_pages, f)
 
-    filter_stations(all_pages, year)
+    filter_stations_by_Code(all_pages, year)
 
 def download_page(page, params):
     """
@@ -135,6 +135,24 @@ def filter_stations(stations, year):
     save_filtered_stations(stations_to_save, curr_station_name, year)
 
     return stations_to_save
+def cut_String(string):
+    return string.split("-")[0]
+
+def filter_stations_by_Code(stations, year):
+    stations_to_save = []
+    for station in stations:
+        print(f"Checking station {station['Nazwa stacji']} with code {cut_String(station['Kod stanowiska'])}")
+        if cut_String(station["Kod stanowiska"]) in station_codes:
+            #print(f"Saving station {station['Nazwa stacji']} with code {cut_String(station['Kod stanowiska'])}")
+            stations_to_save.append(station)
+            save_filtered_stations(stations_to_save, station["Nazwa stacji"], year)
+    print(f"Saved {len(stations_to_save)} stations")
+    #save_all_filtered_stations(stations_to_save, year)
+
+
+def save_all_filtered_stations(stations, year):
+    for station in stations:
+        save_filtered_stations(stations,station, year)
 
 def save_filtered_stations(filtered_stations, station_name, year):
     if not os.path.exists(f"{DATA_FOLDER}/{station_name}"):
