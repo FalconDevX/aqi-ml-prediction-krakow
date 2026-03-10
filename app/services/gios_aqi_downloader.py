@@ -19,41 +19,47 @@ def save_filtered_pages(year, aqi_param):
     """
     Saves all api pages for a given year and aqi parameter.
     """    
+
     global DATA_FOLDER
     DATA_FOLDER = f"./data/{aqi_param}"
-
-    params = {
-        "page": 0,
-        "size": 500,
-        "year": str(year),
-        "voivodeship": "MAŁOPOLSKIE",
-        "pollution": str(aqi_param)
-    }
-
-    response = session.get(URL, params=params)
-
-    data = response.json()
-
-    total_pages = data["totalPages"]
-
-    results = {}
-
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {
-            executor.submit(download_page, i, params): i for i in range(total_pages)
-        }
-
-        for future in as_completed(futures):
-            page = futures[future]
-            results[page] = future.result()
-
-    all_pages = []
 
     os.makedirs(DATA_FOLDER, exist_ok=True)
 
     file_path = f"{DATA_FOLDER}/all_pages.json"
 
-    if not os.path.exists(file_path):
+    if os.path.exists(file_path):
+
+        print("Loading cached pages...")
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            all_pages = json.load(f)
+
+    else:
+
+        params = {
+            "page": 0,
+            "size": 500,
+            "year": str(year),
+            "voivodeship": "MAŁOPOLSKIE",
+            "pollution": str(aqi_param)
+        }
+
+        response = session.get(URL, params=params)
+        data = response.json()
+
+        total_pages = data["totalPages"]
+
+        results = {}
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {
+                executor.submit(download_page, i, params): i
+                for i in range(total_pages)
+            }
+
+            for future in as_completed(futures):
+                page = futures[future]
+                results[page] = future.result()
 
         all_pages = []
 
@@ -61,12 +67,8 @@ def save_filtered_pages(year, aqi_param):
             all_pages.extend(results[page])
 
         with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(all_pages, f, indent=4, ensure_ascii=False)
+            json.dump(all_pages, f)
 
-    else:
-        with open(file_path, "r", encoding="utf-8") as f:
-            all_pages = json.load(f)
-    
     filter_stations(all_pages, year)
 
 def download_page(page, params):
