@@ -15,6 +15,7 @@ with open(f"./data/stations.json", "r", encoding="utf-8") as f:
 
 station_names = {s["Nazwa stacji"] for s in stations_list}
 station_codes = {s["Kod stacji"] for s in stations_list}
+
 def save_filtered_pages(year, aqi_param):
     """
     Saves all api pages for a given year and aqi parameter.
@@ -90,7 +91,7 @@ def download_page(page, params):
 
             data = data["Lista archiwalnych wyników pomiarów"]
 
-            print(f"\033[92mDownloaded page {page}\033[0m")
+            print(f"\033[92mDownloaded page {page}\033[0m - year: {params['year']}, param: {params['pollution']}")
 
             return data
 
@@ -130,7 +131,7 @@ def filter_stations(stations, year):
             print(f"Station {station['Kod stanowiska']} not found in stations list")
             skipped_stations.add(station["Kod stanowiska"])
 
-    #print(f"Skipped stations: {skipped_stations}") #debug purposes
+    print(f"Skipped stations: {skipped_stations}") #debug purposes
 
     save_filtered_stations(stations_to_save, curr_station_code, year)
 
