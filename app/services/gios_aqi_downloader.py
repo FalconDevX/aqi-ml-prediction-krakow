@@ -69,7 +69,7 @@ def save_filtered_pages(year, aqi_param):
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(all_pages, f)
 
-    filter_stations_by_Code(all_pages, year)
+    filter_stations(all_pages, year)
 
 def download_page(page, params):
     """
@@ -114,45 +114,30 @@ def filter_stations(stations, year):
     curr_station_name = None
 
     for station in stations:
-        if station["Nazwa stacji"] in station_names:
+        if cut_String(station["Kod stanowiska"]) in station_codes:
             curr_station_name = station["Nazwa stacji"]
             break
 
     for station in stations:
-        if station["Nazwa stacji"] in station_names and station["Nazwa stacji"] == curr_station_name:
-            stations_to_save.append(station)
-        elif station["Nazwa stacji"] in station_names and station["Nazwa stacji"] != curr_station_name:
+        if cut_String(station["Kod stanowiska"]) in station_codes and station["Nazwa stacji"] == curr_station_name:
+            stations_to_save.append(station) #adds a record, not just a station so its a lot of them
+        elif cut_String(station["Kod stanowiska"]) in station_codes and station["Nazwa stacji"] != curr_station_name:
             save_filtered_stations(stations_to_save, curr_station_name, year)
-            stations_to_save = []
-            curr_station_name = station["Nazwa stacji"]
+            stations_to_save = [] #resets after saving all records to a dedicated station file
+            curr_station_name = station["Nazwa stacji"] 
             stations_to_save.append(station)
-        elif station["Nazwa stacji"] not in station_names:
+        elif cut_String(station["Kod stanowiska"]) not in station_codes:
             print(f"Station {station['Nazwa stacji']} not found in stations list")
             skipped_stations.add(station["Nazwa stacji"])
 
-    print(f"Skipped stations: {skipped_stations}")
+    #print(f"Skipped stations: {skipped_stations}") #debug purposes
 
     save_filtered_stations(stations_to_save, curr_station_name, year)
 
     return stations_to_save
+    
 def cut_String(string):
     return string.split("-")[0]
-
-def filter_stations_by_Code(stations, year):
-    stations_to_save = []
-    for station in stations:
-        print(f"Checking station {station['Nazwa stacji']} with code {cut_String(station['Kod stanowiska'])}")
-        if cut_String(station["Kod stanowiska"]) in station_codes:
-            #print(f"Saving station {station['Nazwa stacji']} with code {cut_String(station['Kod stanowiska'])}")
-            stations_to_save.append(station)
-            save_filtered_stations(stations_to_save, station["Nazwa stacji"], year)
-    print(f"Saved {len(stations_to_save)} stations")
-    #save_all_filtered_stations(stations_to_save, year)
-
-
-def save_all_filtered_stations(stations, year):
-    for station in stations:
-        save_filtered_stations(stations,station, year)
 
 def save_filtered_stations(filtered_stations, station_name, year):
     if not os.path.exists(f"{DATA_FOLDER}/{station_name}"):
