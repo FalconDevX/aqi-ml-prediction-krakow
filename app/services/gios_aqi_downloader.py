@@ -128,15 +128,15 @@ def filter_stations(stations, year):
             curr_station_code = station["Kod stanowiska"] 
             stations_to_save.append(station)
         elif cut_String(station["Kod stanowiska"]) not in station_codes:
-            print(f"Station {station['Kod stanowiska']} not found in stations list")
-            skipped_stations.add(station["Kod stanowiska"])
+            #print(f"Station {station['Nazwa stacji']} not found in stations list") #debug purposes
+            skipped_stations.add(station["Nazwa stacji"])
 
     print(f"Skipped stations: {skipped_stations}") #debug purposes
 
     save_filtered_stations(stations_to_save, curr_station_code, year)
 
     return stations_to_save
-    
+
 def cut_String(string):
     return string.split("-")[0]
 
