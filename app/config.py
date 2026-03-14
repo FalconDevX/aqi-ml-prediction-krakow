@@ -1,9 +1,8 @@
-from pydantic import BaseSettings
+import os
+from dotenv import load_dotenv
 
-class Settings(BaseSettings):
-    token: str
+load_dotenv()
 
-    class Config:
-        env_file = ".env"
-
-settings = Settings()
+class Config:
+    TOKEN = os.getenv("TOKEN")
+    AQICN_BASE_URL = "https://api.waqi.info"
