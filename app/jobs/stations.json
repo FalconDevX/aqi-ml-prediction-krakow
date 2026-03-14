@@ -1,15 +1,15 @@
 [
     {
-        "id": 3402,
-        "name": "Aleja Krasińskiego, Kraków, Małopolska, Poland"
+        "id": 8691,
+        "name": "Kraków, ul. Złoty Róg, Małopolska, Poland"
     },
     {
         "id": 3407,
         "name": "Kurdwanów, Kraków, Małopolska, Poland"
     },
     {
-        "id": 8691,
-        "name": "Kraków, ul. Złoty Róg, Małopolska, Poland"
+        "id": 3402,
+        "name": "Aleja Krasińskiego, Kraków, Małopolska, Poland"
     },
     {
         "id": 9039,
@@ -32,11 +32,11 @@
         "name": "Piotrków, ul. Krakowskie Przedmieście 13, Poland"
     },
     {
-        "id": 10544,
-        "name": "biala krakowska; Bielsko-Biała, ul. Partyzantów, Poland"
-    },
-    {
         "id": 6535,
         "name": "biala krakowska; Bielsko-Biała, ul. Kossak-Szczuckiej 19, Poland"
+    },
+    {
+        "id": 10544,
+        "name": "biala krakowska; Bielsko-Biała, ul. Partyzantów, Poland"
     }
 ]
