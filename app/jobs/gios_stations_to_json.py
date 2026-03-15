@@ -3,20 +3,22 @@ import json
 from app.config import Config
 from app.utils import save_file_to_local_dir
 
-url = f"{Config.AQICN_BASE_URL}/search/"
+url = f"{Config.GIOS_METADATA_STATIONS}"
 params = {
-    "token": Config.TOKEN,
-    "keyword": "Kraków"
+    "page":0,
+    "size": 500,
+    "filter[miejscowosc]": "Kraków"
 }
 
 response = requests.get(url, params=params).json()
 
 stations = [
     {
-        "id": s["uid"],
-        "name": s["station"]["name"]
+        "id": station["Nr"],
+        "station_id": station["Kod stacji"],
+        "name": station["Nazwa stacji"]
     }
-    for s in response["data"]
+    for station in response["Lista metadanych stacji pomiarowych"] 
 ]
 
 file_path = save_file_to_local_dir(__file__, "stations.json")
