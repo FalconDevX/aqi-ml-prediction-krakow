@@ -1,0 +1,338 @@
+[
+    {
+        "id": 58,
+        "name": "Józefa Dietla",
+        "lat": 50.057447,
+        "long": 19.946008
+    },
+    {
+        "id": 57570,
+        "name": "Plac Na Groblach",
+        "lat": 50.057224,
+        "long": 19.933157
+    },
+    {
+        "id": 65989,
+        "name": "Rynek Główny",
+        "lat": 50.062745,
+        "long": 19.937681
+    },
+    {
+        "id": 17,
+        "name": "Aleja Zygmunta Krasińskiego",
+        "lat": 50.057678,
+        "long": 19.926189
+    },
+    {
+        "id": 9576,
+        "name": "Powstańców Wielkopolskich",
+        "lat": 50.043741,
+        "long": 19.966589
+    },
+    {
+        "id": 9910,
+        "name": "Studencka",
+        "lat": 50.062418,
+        "long": 19.928368
+    },
+    {
+        "id": 9919,
+        "name": "Kielecka",
+        "lat": 50.066747,
+        "long": 19.962083
+    },
+    {
+        "id": 41252,
+        "name": "Urocza",
+        "lat": 50.026179,
+        "long": 19.939701
+    },
+    {
+        "id": 9886,
+        "name": "Ferdynanda Kurasia",
+        "lat": 50.025251,
+        "long": 19.937998
+    },
+    {
+        "id": 11239,
+        "name": "Generała Józefa Bema",
+        "lat": 50.07174,
+        "long": 19.962317
+    },
+    {
+        "id": 65905,
+        "name": "Stróża Rybna",
+        "lat": 50.042758,
+        "long": 19.982058
+    },
+    {
+        "id": 2935,
+        "name": "Królewska",
+        "lat": 50.072968,
+        "long": 19.914829
+    },
+    {
+        "id": 9905,
+        "name": "Rogatka",
+        "lat": 50.079672,
+        "long": 19.94919
+    },
+    {
+        "id": 9896,
+        "name": "Vlastimila Hofmana",
+        "lat": 50.057537,
+        "long": 19.897547
+    },
+    {
+        "id": 8165,
+        "name": "Leopolda Staffa",
+        "lat": 50.072763,
+        "long": 19.911081
+    },
+    {
+        "id": 64269,
+        "name": "Wielicka",
+        "lat": 50.024605,
+        "long": 19.97846
+    },
+    {
+        "id": 9903,
+        "name": "Myśliwska",
+        "lat": 50.044067,
+        "long": 19.998804
+    },
+    {
+        "id": 9897,
+        "name": "Macieja Miechowity",
+        "lat": 50.084134,
+        "long": 19.968416
+    },
+    {
+        "id": 18,
+        "name": "Franciszka Bujaka",
+        "lat": 50.010575,
+        "long": 19.949189
+    },
+    {
+        "id": 40904,
+        "name": "Franciszka Bujaka",
+        "lat": 50.010301,
+        "long": 19.950811
+    },
+    {
+        "id": 18410,
+        "name": "Armii Krajowej",
+        "lat": 50.071128,
+        "long": 19.892226
+    },
+    {
+        "id": 45090,
+        "name": "Obozowa",
+        "lat": 50.016578,
+        "long": 19.909836
+    },
+    {
+        "id": 9887,
+        "name": "Na Kozłówce",
+        "lat": 50.018006,
+        "long": 19.983935
+    },
+    {
+        "id": 57423,
+        "name": "Snycerska",
+        "lat": 50.022022,
+        "long": 19.994606
+    },
+    {
+        "id": 8973,
+        "name": "Profesora Michała Życzkowskiego",
+        "lat": 50.08069,
+        "long": 19.99238
+    },
+    {
+        "id": 9904,
+        "name": "Wiedeńska",
+        "lat": 50.073094,
+        "long": 19.88675
+    },
+    {
+        "id": 60,
+        "name": "Złoty Róg",
+        "lat": 50.081197,
+        "long": 19.895358
+    },
+    {
+        "id": 9888,
+        "name": "Henryka Pachońskiego",
+        "lat": 50.093619,
+        "long": 19.924138
+    },
+    {
+        "id": 64706,
+        "name": "Bolesława Orlińskiego",
+        "lat": 50.080669,
+        "long": 20.001771
+    },
+    {
+        "id": 2903,
+        "name": "Stelmachów",
+        "lat": 50.09422,
+        "long": 19.905241
+    },
+    {
+        "id": 40131,
+        "name": "Zygmunta Starego",
+        "lat": 50.077142,
+        "long": 19.876632
+    },
+    {
+        "id": 11349,
+        "name": "Aleja Kasztanowa",
+        "lat": 50.065128,
+        "long": 19.867504
+    },
+    {
+        "id": 11248,
+        "name": "Gajówka",
+        "lat": 50.047161,
+        "long": 19.861521
+    },
+    {
+        "id": 627,
+        "name": "Stepowa",
+        "lat": 49.996571,
+        "long": 19.957157
+    },
+    {
+        "id": 9916,
+        "name": "Kraków",
+        "lat": 50.085346,
+        "long": 20.007551
+    },
+    {
+        "id": 11333,
+        "name": "Myślenicka",
+        "lat": 49.993368,
+        "long": 19.946925
+    },
+    {
+        "id": 3282,
+        "name": "Budziszyńska",
+        "lat": 50.097127,
+        "long": 19.992093
+    },
+    {
+        "id": 15572,
+        "name": "Mieczykowa",
+        "lat": 49.99848,
+        "long": 19.902375
+    },
+    {
+        "id": 9891,
+        "name": "Wilhelma i Jana Ripperów",
+        "lat": 50.020586,
+        "long": 20.02296
+    },
+    {
+        "id": 7758,
+        "name": "Lusińska",
+        "lat": 49.991442,
+        "long": 19.936792
+    },
+    {
+        "id": 11332,
+        "name": "Kłuszyńska",
+        "lat": 49.991052,
+        "long": 19.913596
+    },
+    {
+        "id": 9917,
+        "name": "Stawowa",
+        "lat": 50.098304,
+        "long": 19.879415
+    },
+    {
+        "id": 64980,
+        "name": "Półłanki",
+        "lat": 50.034702,
+        "long": 20.044386
+    },
+    {
+        "id": 9889,
+        "name": "Azaliowa",
+        "lat": 50.108024,
+        "long": 19.896124
+    },
+    {
+        "id": 59,
+        "name": "Kraków",
+        "lat": 50.098508,
+        "long": 20.018269
+    },
+    {
+        "id": 9913,
+        "name": "Dąbrowa",
+        "lat": 50.020756,
+        "long": 19.844076
+    },
+    {
+        "id": 19,
+        "name": "Bulwarowa",
+        "lat": 50.069308,
+        "long": 20.053492
+    },
+    {
+        "id": 9923,
+        "name": "Dworna",
+        "lat": 50.042476,
+        "long": 19.826993
+    },
+    {
+        "id": 7844,
+        "name": "Orla, OA UJ",
+        "lat": 50.05426,
+        "long": 19.826462
+    },
+    {
+        "id": 13257,
+        "name": "Wąwozowa",
+        "lat": 50.083454,
+        "long": 20.057153
+    },
+    {
+        "id": 2865,
+        "name": "Leona Petrażyckiego",
+        "lat": 49.980911,
+        "long": 19.881126
+    },
+    {
+        "id": 36337,
+        "name": "Leona Petrażyckiego",
+        "lat": 49.981311,
+        "long": 19.877832
+    },
+    {
+        "id": 57373,
+        "name": "Edwarda Warchałowskiego",
+        "lat": 49.98794,
+        "long": 19.851206
+    },
+    {
+        "id": 11995,
+        "name": "Gustawa Morcinka",
+        "lat": 50.107288,
+        "long": 20.045784
+    },
+    {
+        "id": 2066,
+        "name": "Jaskrowa",
+        "lat": 50.100569,
+        "long": 20.122561
+    },
+    {
+        "id": 6456,
+        "name": "Igołomska",
+        "lat": 50.079998,
+        "long": 20.172922
+    }
+]

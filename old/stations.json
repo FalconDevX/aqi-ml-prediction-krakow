@@ -1,0 +1,72 @@
+[
+    {
+        "id": 450,
+        "station_id": "MpKrakAlKras",
+        "name": "Kraków, Aleja Krasińskiego"
+    },
+    {
+        "id": 451,
+        "station_id": "MpKrakBujaka",
+        "name": "Kraków, ul. Bujaka"
+    },
+    {
+        "id": 452,
+        "station_id": "MpKrakBulwar",
+        "name": "Kraków, ul. Bulwarowa"
+    },
+    {
+        "id": 453,
+        "station_id": "MpKrakDietla",
+        "name": "Kraków, ul. Dietla"
+    },
+    {
+        "id": 454,
+        "station_id": "MpKrakKamien",
+        "name": "Kraków, ul. Kamieńskiego"
+    },
+    {
+        "id": 455,
+        "station_id": "MpKrakOsPias",
+        "name": "Kraków, os. Piastów"
+    },
+    {
+        "id": 460,
+        "station_id": "MpKrakSwoszo",
+        "name": "Kraków, os. Swoszowice"
+    },
+    {
+        "id": 461,
+        "station_id": "MpKrakTelime",
+        "name": "Kraków, ul. Telimeny"
+    },
+    {
+        "id": 462,
+        "station_id": "MpKrakWadow",
+        "name": "Kraków, os. Wadów"
+    },
+    {
+        "id": 463,
+        "station_id": "MpKrakZloRog",
+        "name": "Kraków, ul. Złoty Róg"
+    },
+    {
+        "id": 456,
+        "station_id": "MpKrakowWIOSPrad6115",
+        "name": "Krowodrza-Kraków, szpital Jana Pawła II"
+    },
+    {
+        "id": 457,
+        "station_id": "MpKrakowWSSEKapi6108",
+        "name": "Kraków Swoszowice Kąpielowa"
+    },
+    {
+        "id": 458,
+        "station_id": "MpKrakowWSSEPrad6102",
+        "name": "Krakow Pradnicka 76"
+    },
+    {
+        "id": 459,
+        "station_id": "MpKrakowWSSERPod6113",
+        "name": "Kraków Rynek Podgórski"
+    }
+]
