@@ -44,5 +44,4 @@ def extract_all_data_from_dataset():
             #return data
 
 #path = download_data_from_dataset()
-#print(path)
 extract_all_data_from_dataset()
