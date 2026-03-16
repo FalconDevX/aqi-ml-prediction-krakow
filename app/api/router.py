@@ -1,8 +1,6 @@
 from fastapi import APIRouter
-from app.services.gios_service import get_stations
+from app.api.stations import router as stations_router
 
 router = APIRouter()
 
-@router.get("/gios/stations", tags=["gios"])
-async def get_gios_stations():
-    return get_stations()
+router.include_router(stations_router, prefix="/stations", tags=["stations"])

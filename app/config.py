@@ -9,3 +9,4 @@ class Config:
     GIOS_METADATA_STATIONS = "https://api.gios.gov.pl/pjp-api/v1/rest/metadata/stations"
     AIRLY_API_KEY = os.getenv("AIRLY_API_KEY")
     AIRLY_NEAREST_INSTALLATIONS = "https://airapi.airly.eu/v2/installations/nearest"
+    AIRLY_MEASURMENTS_LOCATION = "https://airapi.airly.eu/v2/measurements/location"
