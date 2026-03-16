@@ -20,7 +20,7 @@ def get_current_data_from_station(station_id: int):
         }
     ).json()
 
-    file_path = save_file_to_local_dir(__file__, "station_data.json")
+    save_file_to_local_dir(response, __file__, "station_data.json")
+    return response
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(response, f, indent=4, ensure_ascii=False)
+get_current_data_from_station(17)
