@@ -1,26 +1,36 @@
 import requests
-from urllib3 import request, response
 from app.config import Config
 from app.utils import save_file_to_local_dir
 import json
+import httpx
+import asyncio
+
 
 headers = {"apikey": Config.AIRLY_API_KEY}
 
-def get_current_data_from_station(station_id: int):
+async def get_current_data_from_station(station_id: int):
     """
     Get data and time from a given station based on its id
     """
-    response = requests.get(
-        Config.AIRLY_MEASURMENTS_LOCATION,
-        headers = headers,
-        params = {
-            "indexType": "AIRLY_CAQI",
-            "locationId": station_id,
-            "standardType": "WHO"
-        }
-    ).json()
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            Config.AIRLY_MEASURMENTS_LOCATION,
+            headers=headers,
+            params={
+                "indexType": "AIRLY_CAQI",
+                "locationId": station_id,
+                "standardType": "WHO"
+            }
+        )
 
-    save_file_to_local_dir(response, __file__, "station_data.json")
-    return response
+    response.raise_for_status()
+    response = response.json()
 
-get_current_data_from_station(17)
+    station_data = {}
+
+    for air_index in response["current"]["values"]:
+        station_data[air_index["name"]] = air_index["value"]
+
+    station_data["CAQI"] = response["current"]["indexes"]
+
+    return station_data
