@@ -58,6 +58,3 @@ async def get_current_caqi_hex_color(station_id: int):
     color = response["current"]["indexes"][0]["color"]
 
     return color
-
-color = asyncio.run(get_current_caqi_hex_color(17))
-print(color)
