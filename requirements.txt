@@ -7,3 +7,5 @@ python-dotenv
 httpx
 kagglehub
 pandas
+pydantic
+datetime

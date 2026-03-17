@@ -10,3 +10,4 @@ class Config:
     AIRLY_API_KEY = os.getenv("AIRLY_API_KEY")
     AIRLY_NEAREST_INSTALLATIONS = "https://airapi.airly.eu/v2/installations/nearest"
     AIRLY_MEASURMENTS_LOCATION = "https://airapi.airly.eu/v2/measurements/location"
+    DATABASE_URL = os.getenv("DATABASE_URL")
