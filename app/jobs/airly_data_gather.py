@@ -2,13 +2,11 @@ import requests
 import json
 from app.config import Config
 from app.utils import save_file_to_local_dir
+import httpx
 
 def get_all_stations():
-    """
-    Download, filter and save all stations from Kraków to .json file.
-    """
     response = requests.get(
-        Config.AIRLY_NEAREST_INSTALLATIONS, 
+        Config.AIRLY_NEAREST_INSTALLATIONS,
         headers={"apikey": Config.AIRLY_API_KEY},
         params={
             "lat": 50.049683,
@@ -16,7 +14,16 @@ def get_all_stations():
             "maxDistanceKM": 50,
             "maxResults": 1000
         }
-    ).json()
+    )
+
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 429:
+            raise Exception(f"Too many requests: {e.response.status_code}")
+            
+    data = response.json()
+    
 
     stations = [
         {
@@ -25,8 +32,8 @@ def get_all_stations():
             "lat": station["location"]["latitude"],
             "long": station["location"]["longitude"]
         }
-        for station in response 
-        if station["address"]["city"] == "Kraków"  
+        for station in data
+        if station["address"]["city"] == "Kraków"
     ]
 
     for station in stations:
@@ -38,4 +45,4 @@ def get_all_stations():
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(stations, f, indent=4, ensure_ascii=False)
 
-get_all_stations()
+#get_all_stations()
