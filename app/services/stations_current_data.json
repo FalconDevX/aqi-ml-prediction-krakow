@@ -1,0 +1,35 @@
+[
+    {
+        "stationId": 17,
+        "fromDateTime": "2026-03-20T20:00:00.000Z",
+        "tillDateTime": "2026-03-20T21:00:00.000Z",
+        "values": [
+            {
+                "name": "PM25",
+                "value": 17.4
+            },
+            {
+                "name": "PM10",
+                "value": 23.5
+            },
+            {
+                "name": "NO2",
+                "value": 54.3
+            },
+            {
+                "name": "CO",
+                "value": 650.0
+            }
+        ],
+        "indexes": [
+            {
+                "name": "AIRLY_CAQI",
+                "value": 29.0,
+                "level": "LOW",
+                "description": "Well... It's been better.",
+                "advice": "Don't miss this day! The clean air calls!",
+                "color": "#D1CF1E"
+            }
+        ]
+    }
+]
