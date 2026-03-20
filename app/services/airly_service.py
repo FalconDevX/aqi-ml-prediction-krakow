@@ -1,14 +1,17 @@
 from operator import ge
 import requests
 from app.config import Config
-from app.utils import save_file_to_local_dir
+from app.utils import save_file_to_local_dir, get_all_stations_ids
 import json
 import httpx
 import asyncio
 from fastapi import HTTPException
 from app.exceptions import ExternalAPIError
+import asyncio
+import jsonlines
 
 headers = {"apikey": Config.AIRLY_API_KEY}
+
 
 async def get_current_data_from_station(station_id: int):
     """
@@ -22,8 +25,8 @@ async def get_current_data_from_station(station_id: int):
                 params={
                     "indexType": "AIRLY_CAQI",
                     "locationId": station_id,
-                    "standardType": "WHO"
-                }
+                    "standardType": "WHO",
+                },
             )
             response.raise_for_status()
 
@@ -31,14 +34,14 @@ async def get_current_data_from_station(station_id: int):
             raise ExternalAPIError(
                 message=e.response.json()["message"],
                 status_code=e.response.status_code,
-                url=str(e.request.url)
+                url=str(e.request.url),
             )
-        
+
         except httpx.RequestError as e:
             raise ExternalAPIError(
                 message="Network error while contacting Airly API",
                 status_code=503,
-                url=str(e.request.url)
+                url=str(e.request.url),
             )
 
     try:
@@ -47,14 +50,14 @@ async def get_current_data_from_station(station_id: int):
         raise ExternalAPIError(
             message="Invalid JSON response from Airly API",
             status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION
+            url=Config.AIRLY_MEASURMENTS_LOCATION,
         )
 
     if "current" not in data:
         raise ExternalAPIError(
             message="Incorrect Airly response",
             status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION
+            url=Config.AIRLY_MEASURMENTS_LOCATION,
         )
 
     station_data = {}
@@ -66,25 +69,28 @@ async def get_current_data_from_station(station_id: int):
 
     return station_data
 
-# async def get_current_caqi_hex_color(station_id: int):
-#     """
-#     Get the hex color code for a given CAQI value
-#     """
 
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(
-#             Config.AIRLY_MEASURMENTS_LOCATION,
-#             headers=headers,
-#             params={
-#                 "indexType": "AIRLY_CAQI",
-#                 "locationId": station_id,
-#                 "standardType": "WHO"
-#             }
-#         )
+def filter_current_stations(response):
+    stations_current_data = []
+    current = response["current"]
+    filtered_current = {k: v for k, v in current.items() if k != "standards"}
+    stations_current_data.append(filtered_current)
 
-#     response.raise_for_status()
-#     response = response.json()
 
-#     color = response["current"]["indexes"][0]["color"]
+def get_all_data_stations_24h():
+    stations_ids = get_all_stations_ids()
 
-#     return color
+    stations_data = []
+    stations_current_data = []
+    station_history_data = []
+
+    # gather raw stations data
+    with jsonlines.open("all_stations_data.jsonl", mode="w") as file:
+        for id in stations_ids:
+            response = asyncio.run(get_current_data_from_station(id))
+            stations_data.append(response)
+            file.write(response)
+
+    # filter stations
+    for station_curr in stations_data:
+        stations_current_data.append(filter_current_stations(station_curr))

@@ -7,3 +7,9 @@ python-dotenv
 httpx
 kagglehub
 pandas
+polars
+torch
+matplotlib
+scikit-learn
+pyarrow
+jsonlines
