@@ -13,84 +13,73 @@ import jsonlines
 headers = {"apikey": Config.AIRLY_API_KEY}
 
 
-async def get_current_data_from_station(station_id: int):
+async def get_current_and_history_data_from_station(station_id: int):
     """
-    Get data and time from a given station based on its id
+    Get current and history raw data from a given station
     """
     async with httpx.AsyncClient() as client:
-        try:
-            response = await client.get(
-                Config.AIRLY_MEASURMENTS_LOCATION,
-                headers=headers,
-                params={
-                    "indexType": "AIRLY_CAQI",
-                    "locationId": station_id,
-                    "standardType": "WHO",
-                },
-            )
-            response.raise_for_status()
-
-        except httpx.HTTPStatusError as e:
-            raise ExternalAPIError(
-                message=e.response.json()["message"],
-                status_code=e.response.status_code,
-                url=str(e.request.url),
-            )
-
-        except httpx.RequestError as e:
-            raise ExternalAPIError(
-                message="Network error while contacting Airly API",
-                status_code=503,
-                url=str(e.request.url),
-            )
-
-    try:
-        data = response.json()
-    except Exception:
-        raise ExternalAPIError(
-            message="Invalid JSON response from Airly API",
-            status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION,
+        response = await client.get(
+            Config.AIRLY_MEASURMENTS_LOCATION,
+            headers=headers,
+            params={
+                "indexType": "AIRLY_CAQI",
+                "locationId": station_id,
+                "standardType": "WHO",
+            },
         )
+        response.raise_for_status()
 
-    if "current" not in data:
-        raise ExternalAPIError(
-            message="Incorrect Airly response",
-            status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION,
-        )
+    data = response.json()
 
-    station_data = {}
+    # current
+    curr = data["current"]
 
-    for air_index in data["current"].get("values", []):
-        station_data[air_index["name"]] = air_index["value"]
+    curr_station_data = {
+        "stationId": station_id,
+        "fromDateTime": curr.get("fromDateTime"),
+        "tillDateTime": curr.get("tillDateTime"),
+        "values": curr.get("values"),
+        "indexes": curr.get("indexes"),
+    }
 
-    station_data["CAQI"] = data["current"].get("indexes", [])
+    # history
+    history_station_data = [
+        {
+            "fromDateTime": h["fromDateTime"],
+            "tillDateTime": h["tillDateTime"],
+            "values": h["values"],
+            "indexes": h["indexes"],
+        }
+        for h in data["history"]
+    ]
 
-    return station_data
+    return curr_station_data, history_station_data
 
 
-def filter_current_stations(response):
-    stations_current_data = []
-    current = response["current"]
-    filtered_current = {k: v for k, v in current.items() if k != "standards"}
-    stations_current_data.append(filtered_current)
+async def save_all_data_stations_24h():
+    """
+    Save all current and history data from all stations for the last 24 hours to a file
+    """
 
+    stations_ids = [17]
 
-def get_all_data_stations_24h():
-    stations_ids = get_all_stations_ids()
+    # gather current and history data from all stations
+    stations_data = await asyncio.gather(
+        *[get_current_and_history_data_from_station(id) for id in stations_ids]
+    )
 
-    stations_data = []
     stations_current_data = []
     station_history_data = []
 
-    # gather raw stations data
-    with jsonlines.open("all_stations_data.jsonl", mode="w") as file:
-        for id in stations_ids:
-            response = asyncio.run(get_current_data_from_station(id))
-            stations_data.append(response)
-            file.write(response)
+    for station_curr, station_hist in stations_data:
+        stations_current_data.append(station_curr)
+        station_history_data.append(station_hist)
 
-    # filter stations
-    for station_curr in stations_data:
-        stations_current_data.append(filter_current_stations(station_curr))
+    save_file_to_local_dir(station_history_data, __file__, "stations_history_data.json")
+    save_file_to_local_dir(stations_current_data, __file__, "stations_current_data.json")
+    return stations_current_data, station_history_data
+
+
+stations_current_data, station_history_data = asyncio.run(save_all_data_stations_24h())
+print(stations_current_data)
+print(station_history_data)
