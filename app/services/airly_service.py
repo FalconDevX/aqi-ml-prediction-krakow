@@ -44,7 +44,7 @@ async def get_current_and_history_data_from_station(station_id: int):
 
     # history
 
-    history_station_data = [{"stationId": station_id}]
+    history_station_data = []
 
     history_station_data.extend([
         {
@@ -64,25 +64,24 @@ async def save_all_data_stations_24h():
     Save all current and history data from all stations for the last 24 hours to a file
     """
 
-    stations_ids = [17,18]
+    stations_ids = get_all_stations_ids()
 
     # gather current and history data from all stations
     stations_data = await asyncio.gather(
         *[get_current_and_history_data_from_station(id) for id in stations_ids]
     )
 
-    stations_current_data = []
-    station_history_data = []
+    with jsonlines.open("stations_current_data.jsonl", mode="w") as file:
+        for station_curr, _ in stations_data:
+            print("Saving current data for station: ", station_curr["stationId"])
+            file.write(station_curr)
 
-    for station_curr, station_hist in stations_data:
-        stations_current_data.append(station_curr)
-        station_history_data.append(station_hist)
-
-    save_file_to_local_dir(station_history_data, __file__, "stations_history_data.json")
-    save_file_to_local_dir(stations_current_data, __file__, "stations_current_data.json")
-    return stations_current_data, station_history_data
-
-
-stations_current_data, station_history_data = asyncio.run(save_all_data_stations_24h())
-print(stations_current_data)
-print(station_history_data)
+    with jsonlines.open("stations_hisotry_data.jsonl", mode="w") as file:
+        for station_curr, station_history in stations_data:
+            print("Saving history data for station: ", station_curr["stationId"])
+            file.write({
+                "stationId": station_curr["stationId"],
+                "history": station_history
+            })
+       
+station_history_data = asyncio.run(save_all_data_stations_24h())
