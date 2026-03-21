@@ -13,3 +13,6 @@ matplotlib
 scikit-learn
 pyarrow
 jsonlines
+psycopg2
+configparser
+sqlalchemy
