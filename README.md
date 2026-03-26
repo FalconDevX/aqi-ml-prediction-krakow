@@ -189,11 +189,4 @@ CREATE TABLE measurements (
 );
 ```
 
-This repository state does not include migrations or ORM models for these tables, but `app/db/session.py` provides the database connectivity layer.
-
-## Known Issues
-
-- `GET /stations/current/{station_id}` endpoint:
-  - `app/api/stations.py` imports `get_current_data_from_station`, but `app/services/airly_service.py` only defines `get_current_and_history_data_from_station`.
-  - Suggested fix: add a thin wrapper function `get_current_data_from_station` that calls `get_current_and_history_data_from_station` and returns only the `current` part.
 
