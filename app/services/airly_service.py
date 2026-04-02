@@ -1,16 +1,18 @@
-from operator import ge
-import requests
-from app.config import Config
-from app.utils import save_file_to_local_dir, get_all_stations_ids
-import json
-import httpx
-import asyncio
-from fastapi import HTTPException
-from app.exceptions import ExternalAPIError
 import asyncio
 import jsonlines
+from datetime import datetime
+from pathlib import Path
+
+import httpx
+
+from app.config import Config
+from app.exceptions import ExternalAPIError
+from app.utils import get_all_stations_ids
 
 headers = {"apikey": Config.AIRLY_API_KEY}
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent / "stations_data"
+BASE_DIR.mkdir(exist_ok=True)
 
 
 async def get_current_and_history_data_from_station(station_id: int):
@@ -27,11 +29,17 @@ async def get_current_and_history_data_from_station(station_id: int):
                 "standardType": "WHO",
             },
         )
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise ExternalAPIError(
+                message=f"API error for station {station_id}: {e!s}",
+                status_code=e.response.status_code,
+                url=str(e.request.url),
+            ) from e
 
-    data = response.json()
+        data = response.json()
 
-    # current
     curr = data["current"]
 
     curr_station_data = {
@@ -42,11 +50,7 @@ async def get_current_and_history_data_from_station(station_id: int):
         "indexes": curr.get("indexes"),
     }
 
-    # history
-
-    history_station_data = []
-
-    history_station_data.extend([
+    history_station_data = [
         {
             "fromDateTime": h["fromDateTime"],
             "tillDateTime": h["tillDateTime"],
@@ -54,34 +58,51 @@ async def get_current_and_history_data_from_station(station_id: int):
             "indexes": h["indexes"],
         }
         for h in data["history"]
-    ])
+    ]
 
     return curr_station_data, history_station_data
+
+
+async def get_current_data_from_station(station_id: int):
+    curr, _ = await get_current_and_history_data_from_station(station_id)
+    return curr
 
 
 async def save_all_data_stations_24h():
     """
     Save all current and history data from all stations for the last 24 hours to a file
     """
-
     stations_ids = get_all_stations_ids()
 
-    # gather current and history data from all stations
-    stations_data = await asyncio.gather(
-        *[get_current_and_history_data_from_station(id) for id in stations_ids]
+    stations_results = await asyncio.gather(
+        *[get_current_and_history_data_from_station(id) for id in stations_ids],
+        return_exceptions=True,
     )
 
-    with jsonlines.open("stations_current_data.jsonl", mode="w") as file:
-        for station_curr, _ in stations_data:
+    date_str = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    current_path = BASE_DIR /"current"/ f"{date_str}_stations_current_data.jsonl"
+    history_path = BASE_DIR / "history" / f"{date_str}_stations_history_data.jsonl"
+
+    with jsonlines.open(current_path, mode="w") as file:
+        for item in stations_results:
+            if isinstance(item, Exception):
+                print("Skipping station due to error: ", item)
+                continue
+            station_curr, _ = item
             print("Saving current data for station: ", station_curr["stationId"])
             file.write(station_curr)
 
-    with jsonlines.open("stations_hisotry_data.jsonl", mode="w") as file:
-        for station_curr, station_history in stations_data:
+    with jsonlines.open(history_path, mode="w") as file:
+        for item in stations_results:
+            if isinstance(item, Exception):
+                continue
+            station_curr, station_history = item
             print("Saving history data for station: ", station_curr["stationId"])
-            file.write({
-                "stationId": station_curr["stationId"],
-                "history": station_history
-            })
-       
+            file.write(
+                {
+                    "stationId": station_curr["stationId"],
+                    "history": station_history,
+                }
+            )
+
 station_history_data = asyncio.run(save_all_data_stations_24h())
