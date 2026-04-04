@@ -13,6 +13,8 @@ headers = {"apikey": Config.AIRLY_API_KEY}
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent / "stations_data"
 BASE_DIR.mkdir(exist_ok=True)
+(BASE_DIR / "current").mkdir(exist_ok=True)
+(BASE_DIR / "history").mkdir(exist_ok=True)
 
 
 async def get_current_and_history_data_from_station(station_id: int):
@@ -104,5 +106,3 @@ async def save_all_data_stations_24h():
                     "history": station_history,
                 }
             )
-
-station_history_data = asyncio.run(save_all_data_stations_24h())
