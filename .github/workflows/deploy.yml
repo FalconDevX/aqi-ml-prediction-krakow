@@ -1,22 +1,43 @@
-script: |
-  set -e
+name: Deploy API
 
-  cd /root/AQI/aqi-ml-prediction-krakow || { echo "Directory not found"; exit 1; }
+on:
+  push:
+    branches: [ main ]
 
-  echo "Current dir:"
-  pwd
-  ls -la
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-  echo "Pulling latest code..."
-  git pull origin main
+    steps:
+      - name: SSH Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
 
-  echo "Stopping old containers..."
-  docker compose down
+            echo "Going to project directory..."
+            cd /root/AQI/aqi-ml-prediction-krakow || { echo "Directory not found"; exit 1; }
 
-  echo "Cleaning unused Docker data..."
-  docker system prune -f
+            echo "Current dir:"
+            pwd
+            ls -la
 
-  echo "Rebuilding containers..."
-  docker compose up -d --build
+            echo "Pulling latest code..."
+            git pull origin main
 
-  echo "Deploy done!"
+            echo "Stopping old containers..."
+            docker compose down
+
+            echo "Cleaning Docker (old images & cache)..."
+            docker system prune -f
+
+            echo "Rebuilding containers..."
+            docker compose up -d --build
+
+            echo "Removing dangling images..."
+            docker image prune -f
+
+            echo "Deploy done!"
