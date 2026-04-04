@@ -1,8 +1,13 @@
 import os
 from pathlib import Path
 
-import kagglehub
-import pandas as pd
+try:
+    import kagglehub
+    import pandas as pd
+except ImportError as e:
+    raise SystemExit(
+        "This job needs optional deps: pip install kagglehub pandas"
+    ) from e
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_FROM_KAGGLE_FOLDER = BASE_DIR / "data_from_kaggle"
