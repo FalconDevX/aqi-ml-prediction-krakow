@@ -85,14 +85,14 @@ async def save_all_data_stations_24h():
     current_path = BASE_DIR /"current"/ f"{date_str}_stations_current_data.jsonl"
     history_path = BASE_DIR / "history" / f"{date_str}_stations_history_data.jsonl"
 
-    with jsonlines.open(current_path, mode="w") as file:
-        for item in stations_results:
-            if isinstance(item, Exception):
-                print("Skipping station due to error: ", item)
-                continue
-            station_curr, _ = item
-            print("Saving current data for station: ", station_curr["stationId"])
-            file.write(station_curr)
+    # with jsonlines.open(current_path, mode="w") as file:
+    #     for item in stations_results:
+    #         if isinstance(item, Exception):
+    #             print("Skipping station due to error: ", item)
+    #             continue
+    #         station_curr, _ = item
+    #         print("Saving current data for station: ", station_curr["stationId"])
+    #         file.write(station_curr)
 
     with jsonlines.open(history_path, mode="w") as file:
         for item in stations_results:
