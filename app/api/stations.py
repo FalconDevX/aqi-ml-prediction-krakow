@@ -6,12 +6,10 @@ from app.services.airly_service import (
 
 router = APIRouter()
 
-
 @router.get("/collect-data")
 async def collect_data():
     await save_all_data_stations_24h()
     return {"status": "ok"}
-
 
 @router.get("/current/{station_id}")
 async def get_curr_station_data(station_id: int):
