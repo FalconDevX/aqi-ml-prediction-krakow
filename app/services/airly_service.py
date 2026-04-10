@@ -106,3 +106,6 @@ async def save_all_data_stations_24h():
                     "history": station_history,
                 }
             )
+
+# if __name__ == "__main__":
+#     asyncio.run(save_all_data_stations_24h())
