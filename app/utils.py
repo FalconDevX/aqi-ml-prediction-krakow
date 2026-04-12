@@ -25,7 +25,7 @@ def get_all_stations_ids():
     """
     stations_ids = []
 
-    with open("../data/all_airly_stations.json", "r", encoding="utf-8") as f:
+    with open("../../data/all_airly_stations.json", "r", encoding="utf-8") as f:
         stations = json.load(f)
 
     for station in stations:
