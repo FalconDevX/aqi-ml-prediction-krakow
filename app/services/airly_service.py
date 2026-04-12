@@ -64,11 +64,9 @@ async def get_current_and_history_data_from_station(station_id: int):
 
     return curr_station_data, history_station_data
 
-
 async def get_current_data_from_station(station_id: int):
     curr, _ = await get_current_and_history_data_from_station(station_id)
     return curr
-
 
 async def save_all_data_stations_24h():
     """
