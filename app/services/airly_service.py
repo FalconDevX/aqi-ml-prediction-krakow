@@ -1,90 +1,111 @@
-from operator import ge
-import requests
-from app.config import Config
-from app.utils import save_file_to_local_dir
-import json
-import httpx
 import asyncio
-from fastapi import HTTPException
+import jsonlines
+from datetime import datetime
+from pathlib import Path
+
+import httpx
+
+from app.config import Config
 from app.exceptions import ExternalAPIError
+from app.utils import get_all_stations_ids
 
 headers = {"apikey": Config.AIRLY_API_KEY}
 
-async def get_current_data_from_station(station_id: int):
+BASE_DIR = Path(__file__).resolve().parent.parent.parent / "stations_data"
+BASE_DIR.mkdir(exist_ok=True)
+(BASE_DIR / "current").mkdir(exist_ok=True)
+(BASE_DIR / "history").mkdir(exist_ok=True)
+
+
+async def get_current_and_history_data_from_station(station_id: int):
     """
-    Get data and time from a given station based on its id
+    Get current and history raw data from a given station
     """
     async with httpx.AsyncClient() as client:
+        response = await client.get(
+            Config.AIRLY_MEASURMENTS_LOCATION,
+            headers=headers,
+            params={
+                "indexType": "AIRLY_CAQI",
+                "locationId": station_id,
+                "standardType": "WHO",
+            },
+        )
         try:
-            response = await client.get(
-                Config.AIRLY_MEASURMENTS_LOCATION,
-                headers=headers,
-                params={
-                    "indexType": "AIRLY_CAQI",
-                    "locationId": station_id,
-                    "standardType": "WHO"
-                }
-            )
             response.raise_for_status()
-
         except httpx.HTTPStatusError as e:
             raise ExternalAPIError(
-                message=e.response.json()["message"],
+                message=f"API error for station {station_id}: {e!s}",
                 status_code=e.response.status_code,
-                url=str(e.request.url)
-            )
-        
-        except httpx.RequestError as e:
-            raise ExternalAPIError(
-                message="Network error while contacting Airly API",
-                status_code=503,
-                url=str(e.request.url)
-            )
+                url=str(e.request.url),
+            ) from e
 
-    try:
         data = response.json()
-    except Exception:
-        raise ExternalAPIError(
-            message="Invalid JSON response from Airly API",
-            status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION
-        )
 
-    if "current" not in data:
-        raise ExternalAPIError(
-            message="Incorrect Airly response",
-            status_code=502,
-            url=Config.AIRLY_MEASURMENTS_LOCATION
-        )
+    curr = data["current"]
 
-    station_data = {}
+    curr_station_data = {
+        "stationId": station_id,
+        "fromDateTime": curr.get("fromDateTime"),
+        "tillDateTime": curr.get("tillDateTime"),
+        "values": curr.get("values"),
+        "indexes": curr.get("indexes"),
+    }
 
-    for air_index in data["current"].get("values", []):
-        station_data[air_index["name"]] = air_index["value"]
+    history_station_data = [
+        {
+            "fromDateTime": h["fromDateTime"],
+            "tillDateTime": h["tillDateTime"],
+            "values": h["values"],
+            "indexes": h["indexes"],
+        }
+        for h in data["history"]
+    ]
 
-    station_data["CAQI"] = data["current"].get("indexes", [])
+    return curr_station_data, history_station_data
 
-    return station_data
 
-# async def get_current_caqi_hex_color(station_id: int):
-#     """
-#     Get the hex color code for a given CAQI value
-#     """
+async def get_current_data_from_station(station_id: int):
+    curr, _ = await get_current_and_history_data_from_station(station_id)
+    return curr
 
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(
-#             Config.AIRLY_MEASURMENTS_LOCATION,
-#             headers=headers,
-#             params={
-#                 "indexType": "AIRLY_CAQI",
-#                 "locationId": station_id,
-#                 "standardType": "WHO"
-#             }
-#         )
 
-#     response.raise_for_status()
-#     response = response.json()
+async def save_all_data_stations_24h():
+    """
+    Save all current and history data from all stations for the last 24 hours to a file
+    """
+    stations_ids = get_all_stations_ids()
 
-#     color = response["current"]["indexes"][0]["color"]
+    stations_results = await asyncio.gather(
+        *[get_current_and_history_data_from_station(id) for id in stations_ids],
+        return_exceptions=True,
+    )
 
-#     return color
+    date_str = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    current_path = BASE_DIR /"current"/ f"{date_str}_stations_current_data.jsonl"
+    history_path = BASE_DIR / "history" / f"{date_str}_stations_history_data.jsonl"
+
+    # with jsonlines.open(current_path, mode="w") as file:
+    #     for item in stations_results:
+    #         if isinstance(item, Exception):
+    #             print("Skipping station due to error: ", item)
+    #             continue
+    #         station_curr, _ = item
+    #         print("Saving current data for station: ", station_curr["stationId"])
+    #         file.write(station_curr)
+
+    with jsonlines.open(history_path, mode="w") as file:
+        for item in stations_results:
+            if isinstance(item, Exception):
+                continue
+            station_curr, station_history = item
+            print("Saving history data for station: ", station_curr["stationId"])
+            file.write(
+                {
+                    "stationId": station_curr["stationId"],
+                    "history": station_history,
+                }
+            )
+
+# if __name__ == "__main__":
+#     asyncio.run(save_all_data_stations_24h())

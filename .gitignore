@@ -3,3 +3,4 @@
 data/
 .env
 data_from_kaggle/
+app/database.ini

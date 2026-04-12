@@ -23,7 +23,6 @@ def get_all_stations():
             raise Exception(f"Too many requests: {e.response.status_code}")
             
     data = response.json()
-    
 
     stations = [
         {
@@ -40,9 +39,7 @@ def get_all_stations():
         if station["name"] is None:
             station["name"] = "Kraków"
 
-    file_path = save_file_to_local_dir(__file__, "all_airly_stations.json")
+    save_file_to_local_dir(stations, __file__, "all_airly_stations.json")
 
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(stations, f, indent=4, ensure_ascii=False)
 
-#get_all_stations()
+get_all_stations()
