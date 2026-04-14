@@ -12,6 +12,9 @@ class Config:
     AIRLY_NEAREST_INSTALLATIONS = "https://airapi.airly.eu/v2/installations/nearest"
     AIRLY_MEASURMENTS_LOCATION = "https://airapi.airly.eu/v2/measurements/location"
 
+
+    DATABASE_URL = os.getenv("DATABASE_URL")
+
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_HOST = os.getenv("DB_HOST")
@@ -20,6 +23,8 @@ class Config:
 
     @classmethod
     def get_database_url(cls):
+        if cls.DATABASE_URL:
+            return cls.DATABASE_URL
         return (
             f"postgresql+psycopg2://{cls.DB_USER}:"
             f"{cls.DB_PASSWORD}@{cls.DB_HOST}:"
