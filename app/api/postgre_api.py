@@ -4,6 +4,10 @@ from app.db.models import stations_model, measurements_model
 from app.db.models import stations, measurements
 from fastapi import HTTPException
 from typing import List
+from datetime import datetime
+from datetime import timedelta
+from app.db.models import measurements
+
 router = APIRouter()
 
 #will work on this file next
@@ -35,8 +39,36 @@ async def create_station(payload: stations_model, db: SessionDependency):
 
 @router.get("/measurements/{station_id}", response_model=list[measurements_model])
 async def get_measurements(station_id: int, db: SessionDependency):
-    measurements = db.query(measurements).filter(measurements.station_id == station_id).all()
-    return [measurements_model.model_validate(m) for m in measurements]
+    measurement_rows = (
+        db.query(measurements)
+        .filter(measurements.station_id == station_id)
+        .all()
+    )
+    return [measurements_model.model_validate(m) for m in measurement_rows]
+
+#get mesurements by date back to history np. 10, 20 last days
+@router.get("/measurements/history/{station_id}/{days}", response_model=list[measurements_model])
+async def get_measurements_history(station_id: int, days: int, db: SessionDependency):
+    date = datetime.now() - timedelta(days=days)
+
+    measurement_rows = (
+        db.query(measurements)
+        .filter(
+            measurements.station_id == station_id,
+            measurements.timestamp >= date
+        )
+        .all()
+    )
+
+    return [measurements_model.model_validate(m) for m in measurement_rows]
+
+#get last record for station
+@router.get("/measurements/last/{station_id}", response_model=measurements_model)
+async def get_last_measurement(station_id: int, db: SessionDependency):
+    measurement = db.query(measurements).filter(measurements.station_id == station_id).order_by(measurements.timestamp.desc()).first()
+    if not measurement:
+        raise HTTPException(status_code=404, detail="Measurement not found")
+    return measurements_model.model_validate(measurement)
 
 @router.post("/measurements", response_model=measurements_model, status_code=201)
 async def create_measurement(payload: measurements_model, db: SessionDependency):
@@ -47,10 +79,15 @@ async def create_measurement(payload: measurements_model, db: SessionDependency)
     new_measurement = measurements( #same conversion here
         station_id=payload.station_id,
         timestamp=payload.timestamp,
+        pm1=payload.pm1,
         pm10=payload.pm10,
         pm25=payload.pm25,
+        no2=payload.no2,
+        no=payload.no,
         co=payload.co,
-        aqi=payload.aqi,
+        o3=payload.o3,
+        so2=payload.so2,
+        caqi=payload.caqi,
     )
     db.add(new_measurement)
     db.commit()
@@ -77,10 +114,15 @@ async def create_measurements(payload: List[measurements_model], db: SessionDepe
         obj = measurements(
             station_id=item.station_id,
             timestamp=item.timestamp,
+            pm1=item.pm1,
             pm10=item.pm10,
             pm25=item.pm25,
+            no2=item.no2,
+            no=item.no,
             co=item.co,
-            aqi=item.aqi,
+            o3=item.o3,
+            so2=item.so2,
+            caqi=item.caqi,
         )
         db.add(obj)
         created.append(obj)
