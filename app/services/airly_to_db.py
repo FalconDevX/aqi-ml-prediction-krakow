@@ -45,7 +45,8 @@ async def save_measurements_to_db():
     URL = Config.POSTGRE_API_URL + "/measurements/bulk"
     measurements = await map_airly_results_to_db_models()
     payload = [m.model_dump(mode="json") for m in measurements]
-    async with httpx.AsyncClient() as client:
+    timeout = httpx.Timeout(300.0)
+    async with httpx.AsyncClient(timeout=timeout) as client:
         response = await client.post(URL, json=payload)
         response.raise_for_status()
     print(response.json())

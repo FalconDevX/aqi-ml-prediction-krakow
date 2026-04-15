@@ -22,9 +22,9 @@ async def get_station(station_id: int, db: SessionDependency):
 
 @router.post("/stations", response_model=stations_model, status_code=201)
 async def create_station(payload: stations_model, db: SessionDependency):
-    existing_station = db.query(stations).filter(stations.name == payload.name).first()
+    existing_station = db.query(stations).filter(stations.station_id == payload.station_id).first()
     if existing_station:
-        raise HTTPException(status_code=409, detail="Station with this name already exists")
+        raise HTTPException(status_code=409, detail="Station with this station_id already exists")
 
     new_station = stations( #converts pydantic model int o sqlalchemy model
         station_id=payload.station_id,

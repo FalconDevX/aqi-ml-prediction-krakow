@@ -61,7 +61,7 @@ async def get_current_and_history_data_from_station(station_id: int):
         }
         for h in data["history"]
     ]
-
+    print(f"Fetched data for station {station_id}")
     return curr_station_data, history_station_data
 
 async def get_current_data_from_station(station_id: int):
@@ -73,7 +73,7 @@ async def save_all_data_stations_24h():
     Save all current and history data from all stations for the last 24 hours to a file
     """
     stations_ids = get_all_stations_ids()
-    stations_ids = stations_ids[3:5]
+    #stations_ids = stations_ids[3:5]
     print(stations_ids)
     stations_results = await asyncio.gather(
         *[get_current_and_history_data_from_station(id) for id in stations_ids],
