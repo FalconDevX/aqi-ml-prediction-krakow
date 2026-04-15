@@ -3,8 +3,16 @@ from app.api.router import router
 from app.exceptions import ExternalAPIError
 from fastapi.responses import JSONResponse
 from fastapi import Request
+from app.db.db import engine, Base
+import app.db.models 
+
+
 
 app = FastAPI()
+
+@app.on_event("startup")
+def _create_tables():
+    Base.metadata.create_all(bind=engine)
 
 @app.exception_handler(ExternalAPIError)
 async def handle_external_api_error(request: Request, exc: ExternalAPIError):

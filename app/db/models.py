@@ -8,14 +8,14 @@ from datetime import datetime
 class stations(Base):
     __tablename__ = "stations"
     id = Column(Integer, primary_key=True)
+    station_id = Column(Integer, unique=True, nullable=False)
     name = Column(String)
-    latitude = Column(Float)
-    longitude = Column(Float)
+
 
 class measurements(Base):
     __tablename__ = "measurements"
     id = Column(Integer, primary_key=True)
-    station_id = Column(Integer, ForeignKey("stations.id"))
+    station_id = Column(Integer, ForeignKey("stations.station_id"), nullable=False)
     timestamp = Column(DateTime)
     pm25 = Column(Float)
     pm10 = Column(Float)
@@ -27,15 +27,15 @@ class measurements(Base):
 class stations_model(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
-    id: int
+    #id: int #id is primary key wit auto increment so we dont give it
+    station_id: int
     name: str
-    latitude: float
-    longitude: float
+
 
 class measurements_model(BaseModel):
     model_config = ConfigDict(from_attributes=True) # some pydantic magic to convert the sqlalchemy model to a pydantic model
     
-    id: int
+    #id: int
     station_id: int
     timestamp: datetime
     pm25: float

@@ -3,14 +3,14 @@ from app.db.db import SessionDependency
 from app.db.models import stations_model, measurements_model
 from app.db.models import stations, measurements
 from fastapi import HTTPException
-
+from typing import List
 router = APIRouter()
 
 #will work on this file next
 
 @router.get("/stations/{station_id}")
 async def get_station(station_id: int, db: SessionDependency):
-    station = db.query(stations).filter(stations.id == station_id).first()
+    station = db.query(stations).filter(stations.station_id == station_id).first()
     if not station:
         raise HTTPException(status_code=404, detail="Station not found")
     return stations_model.model_validate(station)
@@ -23,14 +23,15 @@ async def create_station(payload: stations_model, db: SessionDependency):
         raise HTTPException(status_code=409, detail="Station with this name already exists")
 
     new_station = stations( #converts pydantic model int o sqlalchemy model
+        station_id=payload.station_id,
         name=payload.name,
-        latitude=payload.latitude,
-        longitude=payload.longitude,
     )
     db.add(new_station)
     db.commit()
     db.refresh(new_station)
     return new_station
+
+########################################################
 
 @router.get("/measurements/{station_id}", response_model=list[measurements_model])
 async def get_measurements(station_id: int, db: SessionDependency):
@@ -55,3 +56,35 @@ async def create_measurement(payload: measurements_model, db: SessionDependency)
     db.commit()
     db.refresh(new_measurement)
     return new_measurement
+
+@router.post("/measurements/bulk", response_model=List[measurements_model], status_code=201)
+async def create_measurements(payload: List[measurements_model], db: SessionDependency):
+    created = []
+    for item in payload:
+        exists = (
+            db.query(measurements)
+            .filter(
+                measurements.station_id == item.station_id,
+                measurements.timestamp == item.timestamp,
+            )
+            .first()
+        )
+        if exists:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Duplicate measurement for station_id={item.station_id}, timestamp={item.timestamp}",
+            )
+        obj = measurements(
+            station_id=item.station_id,
+            timestamp=item.timestamp,
+            pm10=item.pm10,
+            pm25=item.pm25,
+            co=item.co,
+            aqi=item.aqi,
+        )
+        db.add(obj)
+        created.append(obj)
+    db.commit()
+    for obj in created:
+        db.refresh(obj)
+    return created

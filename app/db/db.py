@@ -6,7 +6,10 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from fastapi import Depends
 
-engine = create_engine(Config.DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(
+    Config.get_database_url(),
+    pool_pre_ping=True,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
