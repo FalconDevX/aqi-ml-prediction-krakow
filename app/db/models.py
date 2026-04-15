@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, Float, DateTime, String, ForeignKey
 from app.db.db import Base
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional
 
 # sqlalchemy models for our postgres database
 class stations(Base):
@@ -43,15 +42,16 @@ class measurements_model(BaseModel):
     #id: int
     station_id: int
     timestamp: datetime
-    pm1: Optional[float] = None
-    pm25: Optional[float] = None
-    pm10: Optional[float] = None
-    temperature: Optional[float] = None
-    humidity: Optional[float] = None
-    pressure: Optional[float] = None
-    no2: Optional[float] = None
-    no: Optional[float] = None
-    co: Optional[float] = None
-    o3: Optional[float] = None
-    so2: Optional[float] = None
-    caqi: Optional[int] = None
+    pm1: float | None = None
+    pm25: float | None = None
+    pm10: float | None = None
+    temperature: float | None = None
+    humidity: float | None = None
+    pressure: float | None = None
+    no2: float | None = None
+    no: float | None = None
+    co: float | None = None
+    o3: float | None = None
+    so2: float | None = None
+    caqi: int | None = None
+

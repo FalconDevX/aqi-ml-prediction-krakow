@@ -6,8 +6,6 @@ from fastapi import Request
 from app.db.db import engine, Base
 import app.db.models 
 
-
-
 app = FastAPI()
 
 @app.on_event("startup")
