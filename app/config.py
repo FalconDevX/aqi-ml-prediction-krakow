@@ -14,8 +14,6 @@ class Config:
     AIRLY_MEASURMENTS_LOCATION = "https://airapi.airly.eu/v2/measurements/location"
     
     POSTGRE_API_URL = os.getenv("POSTGRE_API_URL")
-
-
     DATABASE_URL = os.getenv("DATABASE_URL")
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
