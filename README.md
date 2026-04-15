@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="AirCast.png" alt="AirCast — logo projektu" width="280" />
+</p>
+
 # AirCast - Krakow Air Quality Forecasting
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
