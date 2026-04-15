@@ -20,24 +20,32 @@ This repository focuses on the backend part:
 2. storing configuration and database connectivity (PostgreSQL via SQLAlchemy),
 3. exposing a small REST API (FastAPI).
 
-The ML models (LSTM/RNN forecasting) and the full UI dashboard are described in the project materials, but the training/forecasting implementation files are not included in this repository state.
+The ML models (LSTM/RNN forecasting) and training/forecasting code are not included in this repository state. The **frontend** is maintained in a separate repository — see [Frontend](#frontend).
+
+## Frontend
+
+The AirCast web application (map, parameter selection, station views) is not part of this repo.
+
+- **Live site:** [aqi-ml-prediction-krakow-frontend.vercel.app](https://aqi-ml-prediction-krakow-frontend.vercel.app/)
+- **Source code:** [github.com/FalconDevX/aqi-ml-prediction-krakow-frontend](https://github.com/FalconDevX/aqi-ml-prediction-krakow-frontend) (Next.js, TypeScript)
 
 ## Table of Contents
 1. Goals
-2. Milestones
-3. Architecture
-4. Data Sources
-5. API
-6. Configuration
-7. Data Jobs
-8. Docker
-9. PostgreSQL Schema (Reference)
-10. Known Issues
+2. Frontend
+3. Milestones
+4. Architecture
+5. Data Sources
+6. API
+7. Configuration
+8. Data Jobs
+9. Docker
+10. PostgreSQL Schema (Reference)
+11. Known Issues
 
 ## Goals
 
 - Train an AI model that predicts changes in air quality in Krakow based on historical measurements and current station context.
-- Provide a web interface for visualization (map-based dashboard, station-level views) and future forecasts, planned with Next.js and TypeScript.
+- Provide a web interface for visualization (map-based dashboard, station-level views) and future forecasts — the UI is a **Next.js** app; links under [Frontend](#frontend).
 - Build an AIoT station concept (Raspberry Pi + sensors) that can send locally measured data to the backend.
 
 ## Milestones
