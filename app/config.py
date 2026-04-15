@@ -1,20 +1,22 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from configparser import ConfigParser
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 class Config:
     TOKEN = os.getenv("TOKEN")
-    AQICN_BASE_URL = "https://api.waqi.info"
+    AQICN_BASE_URL = "https://api.waqi.info/"
     GIOS_METADATA_STATIONS = "https://api.gios.gov.pl/pjp-api/v1/rest/metadata/stations"
     AIRLY_API_KEY = os.getenv("AIRLY_API_KEY")
     AIRLY_NEAREST_INSTALLATIONS = "https://airapi.airly.eu/v2/installations/nearest"
     AIRLY_MEASURMENTS_LOCATION = "https://airapi.airly.eu/v2/measurements/location"
+    
+    POSTGRE_API_URL = os.getenv("POSTGRE_API_URL")
 
 
     DATABASE_URL = os.getenv("DATABASE_URL")
-
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_HOST = os.getenv("DB_HOST")

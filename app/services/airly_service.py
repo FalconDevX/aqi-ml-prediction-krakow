@@ -73,15 +73,16 @@ async def save_all_data_stations_24h():
     Save all current and history data from all stations for the last 24 hours to a file
     """
     stations_ids = get_all_stations_ids()
-
+    stations_ids = stations_ids[3:5]
+    print(stations_ids)
     stations_results = await asyncio.gather(
         *[get_current_and_history_data_from_station(id) for id in stations_ids],
         return_exceptions=True,
     )
 
-    date_str = datetime.now().strftime("%Y-%m-%d-%H-%M")
-    current_path = BASE_DIR /"current"/ f"{date_str}_stations_current_data.jsonl"
-    history_path = BASE_DIR / "history" / f"{date_str}_stations_history_data.jsonl"
+    #date_str = datetime.now().strftime("%Y-%m-%d-%H-%M")
+    # current_path = BASE_DIR /"current"/ f"{date_str}_stations_current_data.jsonl"
+    #history_path = BASE_DIR / "history" / f"{date_str}_stations_history_data.jsonl"
 
     # with jsonlines.open(current_path, mode="w") as file:
     #     for item in stations_results:
@@ -92,18 +93,20 @@ async def save_all_data_stations_24h():
     #         print("Saving current data for station: ", station_curr["stationId"])
     #         file.write(station_curr)
 
-    with jsonlines.open(history_path, mode="w") as file:
-        for item in stations_results:
-            if isinstance(item, Exception):
-                continue
-            station_curr, station_history = item
-            print("Saving history data for station: ", station_curr["stationId"])
-            file.write(
-                {
-                    "stationId": station_curr["stationId"],
-                    "history": station_history,
-                }
-            )
+    # with jsonlines.open(history_path, mode="w") as file:
+    #     for item in stations_results:
+    #         if isinstance(item, Exception):
+    #             continue
+    #         station_curr, station_history = item
+    #         print("Saving history data for station: ", station_curr["stationId"])
+    #         file.write(
+    #             {
+    #                 "stationId": station_curr["stationId"],
+    #                 "history": station_history,
+    #             }
+    #         )
+    # print(json.dumps(stations_results, indent=2, default=str))
+    return stations_results
 
 # if __name__ == "__main__":
 #     asyncio.run(save_all_data_stations_24h())
