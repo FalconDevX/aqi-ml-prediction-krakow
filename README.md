@@ -179,27 +179,39 @@ docker network create aqi-network
 
 ## PostgreSQL Schema (Reference)
 
-The project materials describe two tables:
-- `stations`
-- `measurements`
+Two tables are defined in SQLAlchemy (`app/db/models.py`):
 
-Reference schema (adjust types as needed):
+- `stations` - one row per Airly (or other) station identifier
+- `measurements` - time series of pollutant and weather-related values per station
+
+`measurements.station_id` references `stations.station_id` (the external station id), not `stations.id`.
+
+Reference DDL (PostgreSQL):
 ```sql
 CREATE TABLE stations (
-  id INTEGER PRIMARY KEY,
-  station_id INTEGER UNIQUE,
+  id SERIAL PRIMARY KEY,
+  station_id INTEGER NOT NULL UNIQUE,
   name TEXT
 );
 
 CREATE TABLE measurements (
   id SERIAL PRIMARY KEY,
-  station_id INTEGER REFERENCES stations(id),
-  date_of TIMESTAMP,
-  PM10 DOUBLE PRECISION,
-  PM2_5 DOUBLE PRECISION,
-  CO DOUBLE PRECISION,
-  AQI DOUBLE PRECISION
+  station_id INTEGER NOT NULL REFERENCES stations (station_id),
+  timestamp TIMESTAMP WITHOUT TIME ZONE,
+  pm1 DOUBLE PRECISION,
+  pm25 DOUBLE PRECISION,
+  pm10 DOUBLE PRECISION,
+  temperature DOUBLE PRECISION,
+  humidity DOUBLE PRECISION,
+  pressure DOUBLE PRECISION,
+  co DOUBLE PRECISION,
+  o3 DOUBLE PRECISION,
+  so2 DOUBLE PRECISION,
+  no2 DOUBLE PRECISION,
+  no DOUBLE PRECISION,
+  caqi INTEGER
 );
 ```
 
+Nullable columns match the ORM: all measurement fields except `station_id` may be `NULL` if not provided.
 
