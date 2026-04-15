@@ -175,6 +175,7 @@ Reference schema (adjust types as needed):
 ```sql
 CREATE TABLE stations (
   id INTEGER PRIMARY KEY,
+  station_id INTEGER UNIQUE,
   name TEXT
 );
 

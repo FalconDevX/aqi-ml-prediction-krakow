@@ -109,7 +109,5 @@ async def save_all_data_stations_24h():
     # print(json.dumps(stations_results, indent=2, default=str))
     return stations_results
 
-
-
 # if __name__ == "__main__":
 #     asyncio.run(save_all_data_stations_24h())
