@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="AirCast.png" alt="AirCast — logo projektu" width="280" />
+  <img src="AirCast.png" alt="AirCast - logo projektu" width="280" />
 </p>
 
 # AirCast - Krakow Air Quality Forecasting
@@ -20,7 +20,7 @@ This repository focuses on the backend part:
 2. storing configuration and database connectivity (PostgreSQL via SQLAlchemy),
 3. exposing a small REST API (FastAPI).
 
-The ML models (LSTM/RNN forecasting) and training/forecasting code are not included in this repository state. The **frontend** is maintained in a separate repository — see [Frontend](#frontend).
+The ML models (LSTM/RNN forecasting) and training/forecasting code are not included in this repository state. The **frontend** is maintained in a separate repository - see [Frontend](#frontend).
 
 ## Frontend
 
@@ -45,7 +45,7 @@ The AirCast web application (map, parameter selection, station views) is not par
 ## Goals
 
 - Train an AI model that predicts changes in air quality in Krakow based on historical measurements and current station context.
-- Provide a web interface for visualization (map-based dashboard, station-level views) and future forecasts — the UI is a **Next.js** app; links under [Frontend](#frontend).
+- Provide a web interface for visualization (map-based dashboard, station-level views) and future forecasts - the UI is a **Next.js** app; links under [Frontend](#frontend).
 - Build an AIoT station concept (Raspberry Pi + sensors) that can send locally measured data to the backend.
 
 ## Milestones
