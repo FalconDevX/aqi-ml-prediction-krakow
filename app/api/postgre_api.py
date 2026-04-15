@@ -62,6 +62,13 @@ async def get_measurements_history(station_id: int, days: int, db: SessionDepend
 
     return [measurements_model.model_validate(m) for m in measurement_rows]
 
+@router.get("/measurements/last/{station_id}", response_model=measurements_model)
+async def get_last_measurement(station_id: int, db: SessionDependency):
+    measurement = db.query(measurements).filter(measurements.station_id == station_id).order_by(measurements.timestamp.desc()).first()
+    if not measurement:
+        raise HTTPException(status_code=404, detail="Measurement not found")
+    return measurements_model.model_validate(measurement)
+
 @router.post("/measurements", response_model=measurements_model, status_code=201)
 async def create_measurement(payload: measurements_model, db: SessionDependency):
     existing_measurement = db.query(measurements).filter(measurements.station_id == payload.station_id, measurements.timestamp == payload.timestamp).first()
