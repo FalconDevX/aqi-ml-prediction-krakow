@@ -42,16 +42,16 @@ class measurements_model(BaseModel):
     #id: int
     station_id: int
     timestamp: datetime
-    pm1: float 
-    pm25: float
-    pm10: float
-    temperature: float
-    humidity: float
-    pressure: float
-    no2: float
-    no: float
-    co: float
-    o3: float
-    so2: float
-    caqi: int
+    pm1: float | None = None
+    pm25: float | None = None
+    pm10: float | None = None
+    temperature: float | None = None
+    humidity: float | None = None
+    pressure: float | None = None
+    no2: float | None = None
+    no: float | None = None
+    co: float | None = None
+    o3: float | None = None
+    so2: float | None = None
+    caqi: int | None = None
 
