@@ -38,7 +38,15 @@ class measurements_model(BaseModel):
     #id: int
     station_id: int
     timestamp: datetime
+    pm1: float 
     pm25: float
     pm10: float
+    temperature: float
+    humidity: float
+    pressure: float
+    no2: float
+    no: float
     co: float
-    aqi: int
+    o3: float
+    so2: float
+    caqi: int
