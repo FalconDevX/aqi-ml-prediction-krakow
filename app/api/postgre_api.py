@@ -7,6 +7,9 @@ from typing import List
 from datetime import datetime
 from datetime import timedelta
 from app.db.models import measurements
+from fastapi.responses import FileResponse
+from pathlib import Path
+import csv
 
 router = APIRouter()
 
@@ -129,3 +132,74 @@ async def create_measurements(payload: List[measurements_model], db: SessionDepe
     for obj in created:
         db.refresh(obj)
     return created
+
+
+@router.get("/measurements/last24h/{station_id}/csv")
+async def export_measurements_last24h_csv(station_id: int, db: SessionDependency):
+    cutoff = datetime.now() - timedelta(hours=24)
+
+    station = db.query(stations).filter(stations.station_id == station_id).first()
+    if not station:
+        raise HTTPException(status_code=404, detail="Station not found")
+
+    measurement_rows = (
+        db.query(measurements)
+        .filter(
+            measurements.station_id == station_id,
+            measurements.timestamp >= cutoff,
+        )
+        .order_by(measurements.timestamp.asc())
+        .all()
+    )
+
+    if not measurement_rows:
+        raise HTTPException(status_code=404, detail="No measurements found in last 24h")
+
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    export_dir = base_dir / "exports"
+    export_dir.mkdir(parents=True, exist_ok=True)
+
+    file_name = f"measurements_{station_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    file_path = export_dir / file_name
+
+    fieldnames = [
+        "station_id",
+        "timestamp",
+        "pm1",
+        "pm25",
+        "pm10",
+        "temperature",
+        "humidity",
+        "pressure",
+        "co",
+        "o3",
+        "so2",
+        "no2",
+        "no",
+        "caqi",
+    ]
+
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for m in measurement_rows:
+            writer.writerow(
+                {
+                    "station_id": m.station_id,
+                    "timestamp": m.timestamp.isoformat() if m.timestamp else None,
+                    "pm1": m.pm1,
+                    "pm25": m.pm25,
+                    "pm10": m.pm10,
+                    "temperature": m.temperature,
+                    "humidity": m.humidity,
+                    "pressure": m.pressure,
+                    "co": m.co,
+                    "o3": m.o3,
+                    "so2": m.so2,
+                    "no2": m.no2,
+                    "no": m.no,
+                    "caqi": m.caqi,
+                }
+            )
+
+    return FileResponse(path=str(file_path), media_type="text/csv", filename=file_name)
