@@ -25,7 +25,7 @@ def extract_data_from_dataset(year:int, param:str):
     if param == "CO":
         station = "MpKrakBulwar" #exception for CO there is no CO sensor on Bujaka
     data = pd.read_csv(DATA_FROM_KAGGLE_FOLDER/f"datasets/wisekinder/poland-air-quality-monitoring-dataset-2017-2023/versions/14/{year}/{year}_{param}_1g.csv")
-    if param == "PM25": #only for this one it is fuking different
+    if param == "PM25": #only for this one, it is different in the dataset
         param = "PM2.5"
         station = "MpKrakBulwar"
     data = data[["Time",f"{station}-{param}-1g"]]
