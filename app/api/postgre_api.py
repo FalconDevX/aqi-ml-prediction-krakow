@@ -50,9 +50,25 @@ async def get_measurements(station_id: int, db: SessionDependency):
     return [measurements_model.model_validate(m) for m in measurement_rows]
 
 #get mesurements by date back to history np. 10, 20 last days
-@router.get("/measurements/history/{station_id}/{days}", response_model=list[measurements_model])
+##### IMPORTANT: ENDPOINT PATH CHANGED
+@router.get("/measurements/history/days/{station_id}/{days}", response_model=list[measurements_model])
 async def get_measurements_history(station_id: int, days: int, db: SessionDependency):
     date = datetime.now() - timedelta(days=days)
+
+    measurement_rows = (
+        db.query(measurements)
+        .filter(
+            measurements.station_id == station_id,
+            measurements.timestamp >= date
+        )
+        .all()
+    )
+
+    return [measurements_model.model_validate(m) for m in measurement_rows]
+
+@router.get("/measurements/history/hours/{station_id}/{hours}", response_model=list[measurements_model])
+async def get_measurements_history_hours(station_id: int, hours: int, db: SessionDependency):
+    date = datetime.now() - timedelta(hours=hours)
 
     measurement_rows = (
         db.query(measurements)
@@ -109,10 +125,7 @@ async def create_measurements(payload: List[measurements_model], db: SessionDepe
             .first()
         )
         if exists:
-            raise HTTPException(
-                status_code=409,
-                detail=f"Duplicate measurement for station_id={item.station_id}, timestamp={item.timestamp}",
-            )
+            continue
         obj = measurements(
             station_id=item.station_id,
             timestamp=item.timestamp,
