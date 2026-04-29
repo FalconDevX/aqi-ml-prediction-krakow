@@ -74,7 +74,7 @@ async def save_all_data_stations_24h():
     Save all current and history data from all stations for the last 24 hours to a file
     """
     stations_ids = get_all_stations_ids()
-    #stations_ids = stations_ids[3:5]
+    # stations_ids = stations_ids[3:5]
     print(stations_ids)
     
     stations_results = await asyncio.gather(

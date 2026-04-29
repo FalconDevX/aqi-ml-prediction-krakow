@@ -42,6 +42,5 @@ def extract_all_data_from_dataset():
             data = extract_data_from_dataset(base_path, year, param)
             data.to_csv(f"data/{year}/{year}_{param}.csv", index=False)
 
-
 if __name__ == "__main__":
     extract_all_data_from_dataset()
