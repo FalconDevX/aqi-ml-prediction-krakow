@@ -13,7 +13,7 @@ import csv
 
 router = APIRouter()
 
-#will work on this file next
+
 
 @router.get("/stations/{station_id}")
 async def get_station(station_id: int, db: SessionDependency):
@@ -52,7 +52,7 @@ async def get_measurements(station_id: int, db: SessionDependency):
 #get mesurements by date back to history np. 10, 20 last days
 ##### IMPORTANT: ENDPOINT PATH CHANGED
 @router.get("/measurements/history/days/{station_id}/{days}", response_model=list[measurements_model])
-async def get_measurements_history(station_id: int, days: int, db: SessionDependency):
+async def get_measurements_history_days(station_id: int, days: int, db: SessionDependency):
     date = datetime.now() - timedelta(days=days)
 
     measurement_rows = (
