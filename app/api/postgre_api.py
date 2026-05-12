@@ -92,7 +92,7 @@ async def get_last_measurement(station_id: int, db: SessionDependency):
 async def create_measurement(payload: measurements_model, db: SessionDependency):
     existing_measurement = db.query(measurements).filter(measurements.station_id == payload.station_id, measurements.timestamp == payload.timestamp).first()
     if existing_measurement:
-        raise HTTPException(status_code=409, detail="Measurement with this station_id and timestamp already exists")
+        continue
 
     new_measurement = measurements( #same conversion here
         station_id=payload.station_id,
