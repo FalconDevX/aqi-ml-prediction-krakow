@@ -13,7 +13,7 @@ import csv
 
 router = APIRouter()
 
-#will work on this file next
+
 
 @router.get("/stations/{station_id}")
 async def get_station(station_id: int, db: SessionDependency):
@@ -27,7 +27,7 @@ async def get_station(station_id: int, db: SessionDependency):
 async def create_station(payload: stations_model, db: SessionDependency):
     existing_station = db.query(stations).filter(stations.station_id == payload.station_id).first()
     if existing_station:
-        raise HTTPException(status_code=409, detail="Station with this station_id already exists")
+        return existing_station
 
     new_station = stations( #converts pydantic model int o sqlalchemy model
         station_id=payload.station_id,
@@ -52,7 +52,7 @@ async def get_measurements(station_id: int, db: SessionDependency):
 #get mesurements by date back to history np. 10, 20 last days
 ##### IMPORTANT: ENDPOINT PATH CHANGED
 @router.get("/measurements/history/days/{station_id}/{days}", response_model=list[measurements_model])
-async def get_measurements_history(station_id: int, days: int, db: SessionDependency):
+async def get_measurements_history_days(station_id: int, days: int, db: SessionDependency):
     date = datetime.now() - timedelta(days=days)
 
     measurement_rows = (
@@ -92,7 +92,7 @@ async def get_last_measurement(station_id: int, db: SessionDependency):
 async def create_measurement(payload: measurements_model, db: SessionDependency):
     existing_measurement = db.query(measurements).filter(measurements.station_id == payload.station_id, measurements.timestamp == payload.timestamp).first()
     if existing_measurement:
-        raise HTTPException(status_code=409, detail="Measurement with this station_id and timestamp already exists")
+        return existing_measurement
 
     new_measurement = measurements( #same conversion here
         station_id=payload.station_id,
