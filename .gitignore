@@ -4,3 +4,4 @@ data/
 .env
 data_from_kaggle/
 app/database.ini
+Data_Backup/

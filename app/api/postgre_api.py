@@ -27,7 +27,7 @@ async def get_station(station_id: int, db: SessionDependency):
 async def create_station(payload: stations_model, db: SessionDependency):
     existing_station = db.query(stations).filter(stations.station_id == payload.station_id).first()
     if existing_station:
-        raise HTTPException(status_code=409, detail="Station with this station_id already exists")
+        return existing_station
 
     new_station = stations( #converts pydantic model int o sqlalchemy model
         station_id=payload.station_id,
@@ -92,7 +92,7 @@ async def get_last_measurement(station_id: int, db: SessionDependency):
 async def create_measurement(payload: measurements_model, db: SessionDependency):
     existing_measurement = db.query(measurements).filter(measurements.station_id == payload.station_id, measurements.timestamp == payload.timestamp).first()
     if existing_measurement:
-        continue
+        return existing_measurement
 
     new_measurement = measurements( #same conversion here
         station_id=payload.station_id,
