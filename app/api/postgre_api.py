@@ -79,7 +79,7 @@ async def get_measurements_history_hours(station_id: int, hours: int, db: Sessio
     return [measurements_model.model_validate(m) for m in measurement_rows]
 
 @router.get("/measurements/last/{station_id}", response_model=measurements_model)
-async def get_last_measurement(station_id: int, db: SessionDependency):
+def get_last_measurement(station_id: int, db: SessionDependency):
     measurement = db.query(measurements).filter(measurements.station_id == station_id).order_by(measurements.timestamp.desc()).first()
     if not measurement:
         raise HTTPException(status_code=404, detail="Measurement not found")
