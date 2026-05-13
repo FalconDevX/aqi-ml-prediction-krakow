@@ -53,32 +53,29 @@ async def get_measurements(station_id: int, db: SessionDependency):
 ##### IMPORTANT: ENDPOINT PATH CHANGED
 @router.get("/measurements/history/days/{station_id}/{days}", response_model=list[measurements_model])
 async def get_measurements_history_days(station_id: int, days: int, db: SessionDependency):
-    date = datetime.now() - timedelta(days=days)
 
     measurement_rows = (
         db.query(measurements)
-        .filter(
-            measurements.station_id == station_id,
-            measurements.timestamp >= date
-        )
+        .filter(measurements.station_id == station_id)
+        .order_by(measurements.timestamp.desc())
+        .limit(days*24)
         .all()
     )
 
+    measurement_rows.reverse()
     return [measurements_model.model_validate(m) for m in measurement_rows]
 
 @router.get("/measurements/history/hours/{station_id}/{hours}", response_model=list[measurements_model])
 async def get_measurements_history_hours(station_id: int, hours: int, db: SessionDependency):
-    date = datetime.now() - timedelta(hours=hours)
-
     measurement_rows = (
         db.query(measurements)
-        .filter(
-            measurements.station_id == station_id,
-            measurements.timestamp >= date
-        )
+        .filter(measurements.station_id == station_id)
+        .order_by(measurements.timestamp.desc())
+        .limit(hours)
         .all()
     )
 
+    measurement_rows.reverse()
     return [measurements_model.model_validate(m) for m in measurement_rows]
 
 @router.get("/measurements/last/{station_id}", response_model=measurements_model)
