@@ -9,54 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug SSH
-        run: |
-          echo "HOST EXISTS: ${{ secrets.SERVER_HOST != '' }}"
-          echo "USER EXISTS: ${{ secrets.SERVER_USER != '' }}"
-          echo "KEY EXISTS: ${{ secrets.SERVER_SSH_KEY != '' }}"
-
-      - name: Check SSH key for CRLF
+      - name: Setup SSH
         env:
           SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
-          if printf '%s' "$SSH_KEY" | grep -q $'\r'; then
-            echo "PROBLEM: SERVER_SSH_KEY contains CRLF (Windows line endings) — re-paste the key in GitHub Secrets with LF only"
-            exit 1
-          else
-            echo "OK: no CRLF in SSH key"
-          fi
+          mkdir -p ~/.ssh
+          printf '%s' "$SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: SSH Deploy
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          debug: true
-          script: |
-            set -e
-
-            echo "Going to project directory..."
-            cd /root/AQI/aqi-ml-prediction-krakow || { echo "Directory not found"; exit 1; }
-
-            echo "Current dir:"
-            pwd
-            ls -la
-
-            echo "Pulling latest code..."
-            git pull origin main
-
-            echo "Stopping old containers..."
-            docker compose down
-
-            echo "Cleaning Docker (old images & cache)..."
-            docker system prune -f
-
-            echo "Rebuilding containers..."
-            docker compose up -d --build
-
-            echo "Removing dangling images..."
-            docker image prune -f
-
-            echo "Deploy done!"
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "set -e && \
+            cd /root/AQI/aqi-ml-prediction-krakow && \
+            git pull origin main && \
+            docker compose down && \
+            docker system prune -f && \
+            docker compose up -d --build && \
+            docker image prune -f && \
+            echo 'Deploy done!'"
