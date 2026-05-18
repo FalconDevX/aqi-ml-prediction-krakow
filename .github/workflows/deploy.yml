@@ -25,7 +25,7 @@ jobs:
 
       - name: Deploy
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes root@46.225.27.182 /bin/bash -s <<'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=yes root@46.225.27.182 /bin/bash -s <<-'EOF'
           set -e
           cd /root/AQI/aqi-ml-prediction-krakow
           git pull origin main
@@ -34,4 +34,4 @@ jobs:
           docker compose up -d --build
           docker image prune -f
           echo "Deploy done!"
-          EOF
+	EOF
