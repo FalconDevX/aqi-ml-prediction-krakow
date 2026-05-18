@@ -27,13 +27,13 @@ async def _post_measurements_bulk(url: str, payload: list[dict]) -> None:
             body = response.json()
             if isinstance(body, list):
                 created_total += len(body)
-    print(f"bulk: {created_total} rek. zapisanych (nowych) w {n_chunks} requestach, łącznie {len(payload)} w payloadzie")
+    print(f"bulk: {created_total} records saved (new) in {n_chunks} requests, total {len(payload)} in payload")
 
 
 def _latest_backup_json_in_data_backup() -> Path:
     directory = _DATA_BACKUP_DIR
     if not directory.is_dir():
-        raise FileNotFoundError(f"Brak folderu kopii: {directory}")
+        raise FileNotFoundError(f"No backup folder: {directory}")
     candidates = [
         p
         for p in directory.iterdir()
@@ -41,7 +41,7 @@ def _latest_backup_json_in_data_backup() -> Path:
     ]
     if not candidates:
         raise FileNotFoundError(
-            f"Brak plików kopii (*.json z nazwą YYYY-MM-DD_HH-MM-SS.json) w {directory}"
+            f"No backup files (*.json with name YYYY-MM-DD_HH-MM-SS.json) in {directory}"
         )
     return max(candidates, key=lambda p: p.name)
 
@@ -87,12 +87,12 @@ async def map_airly_results_to_db_models():
     if not measurements:
         first_err = next((r for r in stations_results if isinstance(r, Exception)), None)
         raise ValueError(
-            f"Brak pomiarów z Airly do zmapowania (stacji w odpowiedzi: {len(stations_results)}, "
-            f"błędów: {n_exceptions}, stacji z pustą historią: {n_ok_empty_history}). "
-            f"Pierwszy wyjątek: {repr(first_err) if first_err else 'brak'}. "
-            "daily_airly_backup_json_and_db zawsze najpierw pobiera świeże dane z API — "
-            "istniejący plik w Data_Backup nie jest używany w tym kroku. "
-            "Aby wysłać tylko istniejący JSON do bazy: save_measurements_from_json_to_db(ścieżka)."
+            f"No measurements from Airly to map (stations in response: {len(stations_results)}, "
+            f"errors: {n_exceptions}, stations with empty history: {n_ok_empty_history}). "
+            f"First exception: {repr(first_err) if first_err else 'none'}. "
+            "daily_airly_backup_json_and_db always fetches fresh data from API first — "
+            "existing file in Data_Backup is not used in this step. "
+            "To send only existing JSON to the database: save_measurements_from_json_to_db(path)."
         )
     return measurements
 
@@ -119,7 +119,7 @@ async def save_measurements_from_json_to_db(json_path: str | Path | None = None)
     with open(path, encoding="utf-8") as f:
         raw = json.load(f)
     if not isinstance(raw, list):
-        raise ValueError("JSON musi być listą obiektów pomiarów")
+        raise ValueError("JSON must be a list of measurement objects")
     items = [measurements_model.model_validate(row) for row in raw]
     payload = [m.model_dump(mode="json") for m in items]
     URL = Config.POSTGRE_API_URL + "/measurements/bulk"
@@ -127,7 +127,13 @@ async def save_measurements_from_json_to_db(json_path: str | Path | None = None)
 
 
 async def daily_airly_backup_json_and_db() -> Path:
-    backup_path = await save_airly_measurements_to_json()
+    try:
+        backup_path = await save_airly_measurements_to_json()
+        print(f"New Backup: {backup_path}")
+    except Exception as fetch_err:
+        print(f"Fetching from Airly failed: {fetch_err}")
+        backup_path = _latest_backup_json_in_data_backup()
+        print(f"Using existing backup: {backup_path}")
     await save_measurements_from_json_to_db(backup_path)
     return backup_path
 
@@ -142,4 +148,4 @@ async def save_measurements_to_db():
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(daily_airly_backup_json_and_db())
+    asyncio.run(save_measurements_from_json_to_db())
