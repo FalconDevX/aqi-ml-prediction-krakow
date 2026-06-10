@@ -1,19 +1,67 @@
 from fastapi import APIRouter, HTTPException
 from app.api.postgre_api import get_measurements_history_hours
 from app.db.db import SessionDependency
-from app.db.models import measurements_model
 from pathlib import Path
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
 HISTORY_HOURS = 48
 PREDICTION_HOURS = 10
+DATA_FETCH_HOURS = HISTORY_HOURS + 24
+MAX_INTERPOLATION_GAP_HOURS = 3
+MAX_MISSING_RATIO = 0.2
 
 
 async def get_data_from_API(station_id: int, hours: int, db: SessionDependency):
     data = await get_measurements_history_hours(station_id, hours, db)
     return data
+
+
+def _prepare_hourly_history(measurements, attr_name: str, hours: int) -> tuple[list[float], datetime]:
+    import pandas as pd
+
+    points = [
+        (m.timestamp, getattr(m, attr_name))
+        for m in measurements
+        if getattr(m, attr_name, None) is not None
+    ]
+    if not points:
+        raise HTTPException(
+            status_code=400,
+            detail=f"No data available for parameter '{attr_name.upper()}'",
+        )
+
+    points.sort(key=lambda x: x[0])
+    last_timestamp = points[-1][0]
+    full_range = pd.date_range(end=last_timestamp, periods=hours, freq="1h")
+
+    series = pd.Series({ts: value for ts, value in points})
+    series = series[~series.index.duplicated(keep="last")].sort_index()
+    series = series.reindex(full_range)
+
+    missing_count = int(series.isna().sum())
+    if missing_count / hours > MAX_MISSING_RATIO:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Too many gaps in measurement data: {missing_count} of {hours} hours missing "
+                f"({missing_count / hours:.0%}). Prediction requires more complete hourly data."
+            ),
+        )
+
+    interpolated = series.interpolate(method="time", limit=MAX_INTERPOLATION_GAP_HOURS)
+    remaining = int(interpolated.isna().sum())
+    if remaining > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Gaps too long to interpolate: {remaining} hour(s) still missing "
+                f"(max gap fill is {MAX_INTERPOLATION_GAP_HOURS}h). Prediction unavailable."
+            ),
+        )
+
+    return interpolated.tolist(), last_timestamp
 
 
 async def model_prediction(model_path: str, target_param: str, station_id: int, db: SessionDependency):
@@ -27,20 +75,9 @@ async def model_prediction(model_path: str, target_param: str, station_id: int, 
 
     model = joblib.load(model_file)
 
-    data = await get_data_from_API(station_id, HISTORY_HOURS, db)
-
+    data = await get_data_from_API(station_id, DATA_FETCH_HOURS, db)
     attr_name = target_param.lower()
-    data = [m for m in data if getattr(m, attr_name, None) is not None]
-    data.sort(key=lambda m: m.timestamp)
-
-    if len(data) < HISTORY_HOURS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Not enough data: need {HISTORY_HOURS} records, got {len(data)}",
-        )
-
-    history = [getattr(m, attr_name) for m in data[-HISTORY_HOURS:]]
-    last_timestamp = data[-1].timestamp
+    history, last_timestamp = _prepare_hourly_history(data, attr_name, HISTORY_HOURS)
 
     predictions = []
     for step in range(PREDICTION_HOURS):
