@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from app.api.postgre_api import get_measurements_history_hours
 from app.db.db import SessionDependency
 from pathlib import Path
@@ -8,7 +8,9 @@ router = APIRouter()
 
 HISTORY_HOURS = 24
 LAG_HOURS = 48
-PREDICTION_HOURS = 10
+DEFAULT_PREDICTION_HOURS = 10
+MIN_PREDICTION_HOURS = 1
+MAX_PREDICTION_HOURS = 15
 DATA_FETCH_HOURS = LAG_HOURS + 24
 MAX_INTERPOLATION_GAP_HOURS = 3
 MAX_MISSING_RATIO = 0.2
@@ -99,7 +101,13 @@ def _prepare_hourly_history(
     return interpolated.tolist(), last_timestamp
 
 
-async def model_prediction(model_path: str, target_param: str, station_id: int, db: SessionDependency):
+async def model_prediction(
+    model_path: str,
+    target_param: str,
+    station_id: int,
+    db: SessionDependency,
+    prediction_hours: int = DEFAULT_PREDICTION_HOURS,
+):
     import joblib
     import numpy as np
     import pandas as pd
@@ -120,7 +128,7 @@ async def model_prediction(model_path: str, target_param: str, station_id: int, 
     )
 
     predictions = []
-    for step in range(PREDICTION_HOURS):
+    for step in range(prediction_hours):
         target_time = last_timestamp + timedelta(hours=step + 1)
         hour = target_time.hour
         month = target_time.month
@@ -153,6 +161,22 @@ async def model_prediction(model_path: str, target_param: str, station_id: int, 
 
 
 @router.get("/prediction/{target_param}/{station_id}")
-async def get_model_prediction(target_param: str, station_id: int, db: SessionDependency):
+async def get_model_prediction(
+    target_param: str,
+    station_id: int,
+    db: SessionDependency,
+    hours: int = Query(
+        DEFAULT_PREDICTION_HOURS,
+        ge=MIN_PREDICTION_HOURS,
+        le=MAX_PREDICTION_HOURS,
+        description="Number of hours to predict ahead (1-15)",
+    ),
+):
     target_param = target_param.upper()
-    return await model_prediction(f"models/{target_param}_model.joblib", target_param, station_id, db)
+    return await model_prediction(
+        f"models/{target_param}_model.joblib",
+        target_param,
+        station_id,
+        db,
+        prediction_hours=hours,
+    )
